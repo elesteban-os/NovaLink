@@ -1,0 +1,38 @@
+.filter-container {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.filter-container label {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.filter-container select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.status-select {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.status-select.pendiente {
+  color: #856404;
+}
+
+.status-select.en\ progreso {
+  color: #084298;
+}
+
+.status-select.completado {
+  color: #155724;
+}

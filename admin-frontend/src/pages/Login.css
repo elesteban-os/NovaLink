@@ -1,0 +1,27 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.login-container {
+  text-align: center;
+}
+
+.login-header {
+  margin-bottom: 40px;
+  color: white;
+}
+
+.login-header h1 {
+  font-size: 48px;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.login-header p {
+  font-size: 16px;
+  opacity: 0.9;
+}
