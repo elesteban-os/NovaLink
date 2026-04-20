@@ -10,9 +10,57 @@ docker-compose up -d
 ```
 
 API disponible en: `http://localhost:8004`
-- Swagger: `http://localhost:8004/docs`
+- Swagger (documentación interactiva): `http://localhost:8004/docs`
 
-**Nota:** Los ejemplos de curl funcionan en Linux/Mac. Para PowerShell (Windows), ver sintaxis específica en cada endpoint.
+---
+
+## Probar con Postman
+
+### Opción 1: Importar OpenAPI automáticamente
+
+1. Abre Postman
+2. Click en **Import** (esquina superior izquierda)
+3. Selecciona la pestaña **Link**
+4. Pega esta URL: `http://localhost:8004/openapi.json`
+5. Click en **Import**
+6. Postman generará automáticamente todas las requests con los parámetros correctos
+
+### Opción 2: Crear requests manualmente
+
+#### POST /notifications - Crear notificación
+
+1. **Method:** POST
+2. **URL:** `http://localhost:8004/notifications`
+3. **Headers:** 
+   - `Content-Type: application/json`
+4. **Body (raw JSON):**
+```json
+{
+  "user_id": 1,
+  "order_id": 10,
+  "title": "Habilidad adquirida",
+  "description": "Has adquirido la habilidad de Empatía"
+}
+```
+5. Click **Send** → Recibirás **201 Created** con la notificación creada
+
+#### GET /users/{user_id}/notifications - Obtener notificaciones
+
+1. **Method:** GET
+2. **URL:** `http://localhost:8004/users/1/notifications`
+3. Sin headers ni body necesarios
+4. Click **Send** → Recibirás **200 OK** con todas las notificaciones del usuario
+5. **Con paginación (opcional):**
+   - URL: `http://localhost:8004/users/1/notifications?skip=0&limit=5`
+
+#### DELETE /notifications/{notification_id} - Eliminar notificación
+
+1. **Method:** DELETE
+2. **URL:** `http://localhost:8004/notifications/1` (reemplaza 1 con el ID a eliminar)
+3. Sin headers ni body necesarios
+4. Click **Send** → Recibirás **204 No Content** (sin body de respuesta)
+
+---
 
 ## Endpoints
 
@@ -22,28 +70,6 @@ Crea una nueva notificación y simula envío de email.
 **Que hace:** Almacena la notificación en PostgreSQL e imprime un mensaje formateado en la consola del servidor.
 
 **Para qué:** Permite que servicios externos (Pedidos, Usuarios, Habilidades) notifiquen a los usuarios.
-
-**Con curl (Linux/Mac):**
-```bash
-curl -X POST "http://localhost:8004/notifications" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": 1,
-    "order_id": 10,
-    "title": "Habilidad adquirida",
-    "description": "Has adquirido la habilidad de Empatía"
-  }'
-```
-
-**Con PowerShell (Windows):**
-```powershell
-$body = '{"user_id":1,"order_id":10,"title":"Habilidad adquirida","description":"Has adquirido la habilidad de Empatia"}'
-Invoke-WebRequest -Uri "http://localhost:8004/notifications" `
-  -Method POST `
-  -Headers @{"Content-Type"="application/json"} `
-  -Body $body `
-  -UseBasicParsing | ConvertFrom-Json
-```
 
 Respuesta (201):
 ```json
@@ -62,26 +88,9 @@ Respuesta (201):
 ### GET /users/{user_id}/notifications
 Obtiene todas las notificaciones de un usuario.
 
-**Que hace:** Recupera el historial de notificaciones del usuario con paginación.
+**Que hace:** Recupera el historial de notificaciones del usuario. Por defecto devuelve todas las notificaciones ordenadas por más recientes primero. Soporta paginación opcional mediante parámetros `skip` y `limit`.
 
 **Para qué:** Mostrar el centro de notificaciones en la interfaz de usuario.
-
-**Con curl (Linux/Mac):**
-```bash
-curl -X GET "http://localhost:8004/users/1/notifications"
-```
-
-**Con PowerShell (Windows):**
-```powershell
-Invoke-WebRequest -Uri "http://localhost:8004/users/1/notifications" `
-  -Method GET `
-  -UseBasicParsing | ConvertFrom-Json
-```
-
-**Con paginación (opcional):**
-```bash
-curl -X GET "http://localhost:8004/users/1/notifications?skip=0&limit=5"
-```
 
 Respuesta (200):
 ```json
@@ -109,18 +118,6 @@ Elimina una notificación.
 **Que hace:** Elimina permanentemente una notificación del sistema.
 
 **Para qué:** Permitir que usuarios limpien su historial.
-
-**Con curl (Linux/Mac):**
-```bash
-curl -X DELETE "http://localhost:8004/notifications/1"
-```
-
-**Con PowerShell (Windows):**
-```powershell
-Invoke-WebRequest -Uri "http://localhost:8004/notifications/1" `
-  -Method DELETE `
-  -UseBasicParsing
-```
 
 Respuesta (204 No Content)
 
