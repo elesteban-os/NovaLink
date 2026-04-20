@@ -1,0 +1,49 @@
+services:
+  postgres_notifications:
+    image: postgres:15-alpine
+    container_name: postgres_notifications
+    environment:
+      POSTGRES_USER: ${DB_USER:-novalink_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-novalink_password}
+      POSTGRES_DB: ${DB_NAME:-notifications_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - notifications_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-novalink_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - novalink_network
+
+  notifications_api:
+    build: .
+    container_name: notifications_api
+    depends_on:
+      postgres_notifications:
+        condition: service_healthy
+    environment:
+      DB_USER: ${DB_USER:-novalink_user}
+      DB_PASSWORD: ${DB_PASSWORD:-novalink_password}
+      DB_HOST: postgres_notifications
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-notifications_db}
+      DB_ECHO: ${DB_ECHO:-false}
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 8004
+    ports:
+      - "8004:8004"
+    volumes:
+      - .:/app
+    networks:
+      - novalink_network
+    command: uvicorn main:app --host 0.0.0.0 --port 8004 --reload
+
+volumes:
+  notifications_db_data:
+
+networks:
+  novalink_network:
+    driver: bridge
