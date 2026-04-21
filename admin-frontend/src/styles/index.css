@@ -1,0 +1,43 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+input,
+textarea,
+select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+}
