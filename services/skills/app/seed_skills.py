@@ -33,12 +33,23 @@ SKILLS = [
 ]
 
 
-def seed_skills() -> None:
-    models.Base.metadata.drop_all(bind=engine)
+def seed_skills(reset: bool = False) -> int:
+    if reset:
+        models.Base.metadata.drop_all(bind=engine)
+
     models.Base.metadata.create_all(bind=engine)
 
+    created = 0
     with SessionLocal() as db:
         for skill_data in SKILLS:
+            exists = (
+                db.query(models.Skill)
+                .filter(models.Skill.skill_name == skill_data["skill_name"])
+                .first()
+            )
+            if exists:
+                continue
+
             db.add(
                 models.Skill(
                     skill_name=skill_data["skill_name"],
@@ -46,10 +57,13 @@ def seed_skills() -> None:
                     stock=skill_data["stock"],
                 )
             )
+            created += 1
 
         db.commit()
 
+    return created
+
 
 if __name__ == "__main__":
-    seed_skills()
-    print("Base de datos de skills poblada correctamente.")
+    inserted = seed_skills(reset=True)
+    print(f"Base de datos de skills poblada correctamente. Skills creadas: {inserted}")
