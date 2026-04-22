@@ -14,11 +14,21 @@ async def lifespan(app: FastAPI):
     yield
     print("[FIN]")
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(
     title="Servicio de Órdenes",
     description="Gestiona las órdenes de habilidades de los usuarios",
     version="1.0.0",
     lifespan=lifespan
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ============================================================================

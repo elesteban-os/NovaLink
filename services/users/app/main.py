@@ -4,11 +4,25 @@ from typing import List
 
 from . import models, schemas, crud, security
 from .database import engine, get_db
+from .seed_users import seed_users
 
 # Crea la tablas de la DB
 models.Base.metadata.create_all(bind=engine)
 
+# Sembrar usuarios de prueba
+seed_users()
+
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(title="Users Microservice")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def read_root():

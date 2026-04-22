@@ -20,28 +20,28 @@ def seed_users():
         {
             "first_name": "Juan",
             "last_name": "Pérez",
-            "email": "juan.perez@example.com",
+            "email": "juan.perez@admin.com",
             "password": "password123",
             "skills": ["Python", "Docker", "Kubernetes"]
         },
         {
             "first_name": "Ana",
             "last_name": "García",
-            "email": "ana.garcia@example.com",
+            "email": "ana.garcia@admin.com",
             "password": "password123",
             "skills": ["JavaScript", "React", "Node.js"]
         },
         {
             "first_name": "Carlos",
             "last_name": "López",
-            "email": "carlos.lopez@example.com",
+            "email": "carlos.lopez@user.com",
             "password": "password123",
             "skills": ["Java", "Spring Boot", "SQL"]
         },
         {
             "first_name": "María",
             "last_name": "Rodríguez",
-            "email": "maria.rodriguez@example.com",
+            "email": "maria.rodriguez@user.com",
             "password": "password123",
             "skills": ["Go", "Kubernetes", "AWS"]
         }

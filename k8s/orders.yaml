@@ -92,6 +92,7 @@ kind: Service
 metadata:
   name: orders-api
 spec:
+  type: LoadBalancer
   selector:
     app: orders-api
   ports:

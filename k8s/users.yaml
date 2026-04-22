@@ -77,7 +77,7 @@ spec:
           value: "users_pass"
         - name: POSTGRES_DB
           value: "users_db"
-        - name: DB_HOST
+        - name: POSTGRES_HOST
           value: "users-db" # Nombre exacto del Service de K8s creado arriba
         ports:
         - containerPort: 8000
@@ -87,8 +87,9 @@ kind: Service
 metadata:
   name: users-api
 spec:
+  type: LoadBalancer
   selector:
     app: users-api
   ports:
-  - port: 8000
+  - port: 8002
     targetPort: 8000

@@ -88,8 +88,9 @@ kind: Service
 metadata:
   name: skills-api
 spec:
+  type: LoadBalancer
   selector:
     app: skills-api
   ports:
-  - port: 8000
+  - port: 8001
     targetPort: 8000
