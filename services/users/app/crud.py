@@ -36,7 +36,7 @@ def update_user(db: Session, db_user: models.User, user_update: schemas.UserUpda
     db.refresh(db_user)
     return db_user
 
-# SKILL DE USER CRUD xd
+# SKILL DE USER CRUD
 def get_user_skills(db: Session, user_id: int):
     return db.query(models.UserSkill.skill_name).filter(models.UserSkill.user_id == user_id).all()
 
