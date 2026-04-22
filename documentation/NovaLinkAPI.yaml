@@ -1,0 +1,227 @@
+openapi: 3.0.0
+info:
+  title: NovaLink API
+  description: NovaLink busca crear una plataforma innovadora para proveer habilidades sociales en sus usuarios. Cada habilidad se trata como un producto digital que puede ser gestionado en un inventario y asignado a los usuarios mediante pedidos. NovaLink no es solo una red social; es un ecosistema donde las habilidades sociales (empatía, liderazgo, comunicación asertiva) se gestionan con la precisión de un e-commerce.
+  version: 1.0.0
+
+paths:
+  # --- SERVICIO DE USUARIOS ---
+  /users:
+    post:
+      summary: Crear nuevo usuario
+      description: Cuando se reciben los datos del usuario, el sistema crea un nuevo registro en la base de datos.
+      tags:
+        - Usuarios
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, last_name, email, password]
+              properties:
+                name: { type: string, example: "Juan" }
+                last_name: { type: string, example: "Pérez" }
+                email: { type: string, example: "juan.perez@email.com" }
+                password: { type: string, example: "********" }
+      responses:
+        '201':
+          description: Usuario creado exitosamente.
+          content:
+            application/json:
+              example:
+                id: 15
+                message: "User created successfully"
+        '400':
+          description: Datos inválidos o correo electrónico ya registrado.
+    
+    get:
+      summary: Obtener información de todos los usuarios
+      description: Retorna todos los atributos de todos los usuarios existentes
+      tags:
+        - Usuarios
+      responses:
+        '200':
+          description: Lista de usuarios encontrada.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    last_name:
+                      type: string
+                    email:
+                      type: string
+              example:
+                - id: 10
+                  name: "Melissa"
+                  last_name: "Araya"
+                  email: "m.araya@novalink.com"
+                - id: 11
+                  name: "Alejandro"
+                  last_name: "García"
+                  email: "a.garcia@novalink.com"
+        '404':
+          description: No se encontraron usuarios.
+  /users/{user_id}:
+    put:
+      summary: Actualizar usuario
+      description: Actualiza todos los campos de un usuario existente.
+      tags:
+        - Usuarios
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '200':
+          description: Usuario actualizado con éxito.
+        '404':
+          description: Usuario no encontrado.
+
+  /users/{user_id}/skills:
+    get:
+      summary: Listar habilidades del usuario
+      description: Retorna las habilidades asignadas, incluyendo nombre, nivel y puntaje.
+      tags:
+        - Usuarios
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Lista de habilidades obtenida.
+          content:
+            application/json:
+              example:
+                - skill_name: "Empatía"
+                  difficulty_level: 5
+                  points: 5
+                - skill_name: "Liderazgo"
+                  difficulty_level: 3
+                  points: 10
+
+  # --- SERVICIO DE PRODUCTOS (HABILIDADES) ---
+  /skills:
+    post:
+      summary: Crear nueva habilidad
+      tags: [Habilidades]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skill_name: { type: string }
+                difficulty_level: { type: integer }
+                stock: { type: integer }
+      responses:
+        '201':
+          description: Habilidad registrada.
+    get:
+      summary: Listar todas las habilidades
+      tags: [Habilidades]
+      responses:
+        '200':
+          description: Catálogo completo de habilidades.
+
+  /skills/{skill_id}:
+    put:
+      summary: Editar habilidad
+      tags: [Habilidades]
+      parameters:
+        - name: skill_id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skill_name: { type: string }
+                difficulty_level: { type: integer }
+                stock: { type: integer }
+      responses:
+        '200':
+          description: Habilidad modificada correctamente.
+    delete:
+      summary: Eliminar habilidad
+      tags: [Habilidades]
+      parameters:
+        - name: skill_id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '204':
+          description: Habilidad eliminada.
+
+  # --- SERVICIO DE PEDIDOS ---
+  /orders:
+    post:
+      summary: Crear pedido de habilidad
+      description: Registra la solicitud de una habilidad por parte de un usuario.
+      tags: [Pedidos]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_ID: { type: integer }
+                skill_name: { type: string }
+                quantity: { type: integer }
+      responses:
+        '201':
+          description: Pedido procesado exitosamente.
+
+  # --- SERVICIO DE NOTIFICACIONES ---
+  /notifications:
+    post:
+      summary: Enviar notificación de pedido
+      description: Genera una notificación vinculada a un pedido específico.
+      tags: [Notificaciones]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_ID: { type: integer }
+                order_ID: { type: integer }
+                title: { type: string }
+                description: { type: string }
+      responses:
+        '201':
+          description: Notificación enviada.
+
+components:
+  schemas:
+    UserInput:
+      type: object
+      properties:
+        name: { type: string }
+        last_name: { type: string }
+        email: { type: string }
+        password: { type: string }
