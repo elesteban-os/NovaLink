@@ -77,16 +77,6 @@ def get_db() -> Generator[Session, None, None]:
         db.close()
 
 
-@app.get("/", tags=["System"], summary="Estado base del servicio")
-def root():
-    return {"msg": "API funcionando"}
-
-
-@app.get("/health", tags=["System"], summary="Health check")
-def health():
-    return {"status": "ok"}
-
-
 @app.post(
     "/skills",
     response_model=SkillResponse,
@@ -121,25 +111,6 @@ def create_skill(skill: SkillCreate, db: Session = Depends(get_db)):
 )
 def list_skills(db: Session = Depends(get_db)):
     return db.query(models.Skill).all()
-
-
-@app.get(
-    "/skills/{skill_id}",
-    response_model=SkillResponse,
-    tags=["Skills"],
-    summary="Obtener una skill por ID",
-    responses={
-        200: {"description": "Skill encontrada."},
-        404: error_404_response,
-        422: {"description": "Error de validacion en path params."},
-    },
-)
-def get_skill(skill_id: int, db: Session = Depends(get_db)):
-    db_skill = db.query(models.Skill).filter(models.Skill.skill_id == skill_id).first()
-    if not db_skill:
-        raise HTTPException(status_code=404, detail="Skill no encontrada")
-
-    return db_skill
 
 
 @app.put(

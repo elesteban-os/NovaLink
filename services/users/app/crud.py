@@ -41,9 +41,9 @@ def update_user(db: Session, db_user: models.User, user_update: schemas.UserUpda
 
 # SKILL DE USER CRUD
 def get_user_skills(db: Session, user_id: int):
-    return db.query(models.UserSkill.skill_name).filter(models.UserSkill.user_id == user_id).all()
+    return db.query(models.UserSkill).filter(models.UserSkill.user_id == user_id).all()
 
-def add_user_skill(db: Session, user_id: int, skill_name: str):
+def add_user_skill(db: Session, user_id: int, skill_name: str, quantity: int = 1):
     # Check if skill already exists for this user to avoid duplicates
     existing_skill = db.query(models.UserSkill).filter(
         models.UserSkill.user_id == user_id, 
@@ -51,9 +51,12 @@ def add_user_skill(db: Session, user_id: int, skill_name: str):
     ).first()
     
     if existing_skill:
+        existing_skill.points += quantity
+        db.commit()
+        db.refresh(existing_skill)
         return existing_skill
         
-    db_skill = models.UserSkill(user_id=user_id, skill_name=skill_name)
+    db_skill = models.UserSkill(user_id=user_id, skill_name=skill_name, points=quantity)
     db.add(db_skill)
     db.commit()
     db.refresh(db_skill)

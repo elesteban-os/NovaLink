@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './Skills.css';
 
 const SKILLS_API_URL = 'http://localhost:8001';
+const USERS_API_URL = 'http://localhost:8002';
+const NOTIFICATIONS_API_URL = 'http://localhost:8004';
 const ORDERS_API_URL = 'http://localhost:8005';
 
 function Skills({ role, userId }) {
@@ -9,6 +11,7 @@ function Skills({ role, userId }) {
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ skill_name: '', difficulty_level: 1, stock: 10 });
+  const [purchaseQuantity, setPurchaseQuantity] = useState(1);
   const [modalType, setModalType] = useState(null); // 'purchase', 'create', 'edit'
 
   const fetchSkills = async () => {
@@ -30,17 +33,23 @@ function Skills({ role, userId }) {
 
   const handlePurchaseClick = (skill) => {
     setSelectedSkill(skill);
+    setPurchaseQuantity(1);
     setModalType('purchase');
     setShowModal(true);
   };
 
   const confirmPurchase = async () => {
+    if (purchaseQuantity < 1 || purchaseQuantity > selectedSkill.stock) {
+        alert("Cantidad no válida o excede el stock disponible.");
+        return;
+    }
+    
     try {
       // POST /orders
       const orderPayload = {
         user_id: userId,
         skill_name: selectedSkill.skill_name || selectedSkill.name,
-        quantity: 1
+        quantity: purchaseQuantity
       };
       
       const res = await fetch(`${ORDERS_API_URL}/orders`, {
@@ -50,17 +59,40 @@ function Skills({ role, userId }) {
       });
       
       if (res.ok) {
+        const orderData = await res.json();
+        const skillName = selectedSkill.skill_name || selectedSkill.name;
         // Ahora sí vincularemos esto a la base de datos de Usuarios para reflejarlo en su perfil
-        const userRes = await fetch(`http://localhost:8002/users/${userId}/skills/${encodeURIComponent(selectedSkill.skill_name || selectedSkill.name)}`, {
+        const userRes = await fetch(`${USERS_API_URL}/users/${userId}/skills/${encodeURIComponent(skillName)}?quantity=${purchaseQuantity}`, {
           method: 'POST',
         });
         
+        // Actualizamos el stock
+        await fetch(`${SKILLS_API_URL}/skills/${selectedSkill.skill_id || selectedSkill.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stock: selectedSkill.stock - purchaseQuantity })
+        });
+
+        // Enviamos notificación
+        await fetch(`${NOTIFICATIONS_API_URL}/notifications`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: userId,
+            order_id: orderData.id || 1,
+            title: "Nueva Habilidad Adquirida",
+            description: `Has adquirido ${purchaseQuantity} x ${skillName} exitosamente.`
+          })
+        });
+
         if (userRes.ok) {
-          alert("¡Pedido creado y habilidad adquirida a tu perfil exitosamente!");
+          alert(`¡Pedido creado (${purchaseQuantity}x), habilidad adquirida y notificación enviada exitosamente!`);
+          fetchSkills();
         } else {
           alert("Pedido creado, pero error vinculando la habilidad a tu perfil.");
         }
         setShowModal(false);
+        setPurchaseQuantity(1);
       } else {
         alert("Error creando pedido");
       }
@@ -184,8 +216,9 @@ function Skills({ role, userId }) {
                     <input type="text" value={formData.skill_name} onChange={e => setFormData({...formData, skill_name: e.target.value})} required/>
                   </div>
                   <div className="form-group">
-                    <label>Nivel de dificultad (1=Básico, 2=Int, 3=Ava):</label>
-                    <input type="number" value={formData.difficulty_level} onChange={e => setFormData({...formData, difficulty_level: parseInt(e.target.value)})} required/>
+                    <label>Nivel de dificultad (1=Básico, 10=Máximo posible):</label>
+                    <input type="number" min="1" max="10" value={formData.difficulty_level} onChange={e => setFormData({...formData, difficulty_level: parseInt(e.target.value)})} required/>
+                    <small style={{color: '#666', fontSize: '0.8rem'}}>El nivel máximo de dificultad es 10.</small>
                   </div>
                   <div className="form-group">
                     <label>Stock:</label>

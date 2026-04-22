@@ -22,5 +22,6 @@ class UserSkill(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     skill_name = Column(String, nullable=False)
+    points = Column(Integer, default=1, nullable=False)
 
     user = relationship("User", back_populates="skills")

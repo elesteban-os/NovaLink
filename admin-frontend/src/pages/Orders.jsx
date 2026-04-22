@@ -16,7 +16,7 @@ function Orders({ userId }) {
       const res = await fetch(`${USERS_API_URL}/users/${userId}/skills`);
       if (res.ok) {
         const data = await res.json();
-        // El endpoint devuelve una lista de strings: ["Empatia", "Liderazgo"...]
+        // El endpoint devuelve una lista de objetos: [{skill_name: "Empatia", points: 1}, ...]
         setUserSkills(data);
       }
     } catch (error) {
@@ -37,21 +37,23 @@ function Orders({ userId }) {
             <thead>
               <tr>
                 <th>Habilidad</th>
+                <th>Puntos / Nivel</th>
                 <th>Estado</th>
               </tr>
             </thead>
             <tbody>
               {userSkills.length > 0 ? (
-                userSkills.map((skillName, index) => (
+                userSkills.map((skill, index) => (
                   <tr key={index}>
-                    <td>{skillName}</td>
+                    <td>{skill.skill_name || skill}</td>
+                    <td>{skill.points || 1}</td>
                     <td>
                       <span className="badge badge-completado">Adquirida</span>
                     </td>
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan="2">Aún no tienes habilidades en tu perfil.</td></tr>
+                <tr><td colSpan="3">Aún no tienes habilidades en tu perfil.</td></tr>
               )}
             </tbody>
           </table>
