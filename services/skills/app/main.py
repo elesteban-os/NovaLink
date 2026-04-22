@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.db import engine
 from app.db import SessionLocal
 from app import models
+from app.seed_skills import seed_skills
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -15,6 +16,11 @@ app = FastAPI(
     description="API para gestionar habilidades y stock.",
     version="1.0.0",
 )
+
+
+@app.on_event("startup")
+def startup_seed_skills() -> None:
+    seed_skills(reset=False)
 
 
 class ErrorResponse(BaseModel):
