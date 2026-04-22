@@ -1,60 +1,73 @@
 import React, { useState, useEffect } from 'react';
-import { usersData } from '../data/mockData';
 import './Users.css';
+
+// URL base provisional. Asegúrate de tener expuesto tu servicio en K8s o usar el proxy adecuado
+const API_URL = 'http://localhost:8002'; 
 
 function Users() {
   const [users, setUsers] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', role: 'Estudiante' });
+  const [formData, setFormData] = useState({ name: '', email: '', role: 'Estudiante', password: '123' });
   const [editingId, setEditingId] = useState(null);
 
+  const fetchUsers = async () => {
+    try {
+      // GET /users
+      const res = await fetch(`${API_URL}/users`);
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(data);
+      }
+    } catch (error) {
+      console.error("Error obteniendo usuarios", error);
+    }
+  };
+
   useEffect(() => {
-    // Simulamos carga de datos desde API
-    setUsers(usersData);
+    fetchUsers();
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (editingId) {
-      setUsers(
-        users.map((u) =>
-          u.id === editingId ? { ...u, ...formData } : u
-        )
-      );
+    try {
+      if (editingId) {
+        // PUT /users/{user_id}
+        await fetch(`${API_URL}/users/${editingId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+      } else {
+        // POST /users
+        await fetch(`${API_URL}/users`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+      }
+      fetchUsers();
+      setFormData({ name: '', email: '', role: 'Estudiante', password: '123' });
+      setShowForm(false);
       setEditingId(null);
-    } else {
-      const newUser = {
-        id: Math.max(...users.map((u) => u.id), 0) + 1,
-        ...formData,
-        skills: 0,
-      };
-      setUsers([...users, newUser]);
+    } catch (error) {
+      console.error("Error guardando usuario", error);
     }
-
-    setFormData({ name: '', email: '', role: 'Estudiante' });
-    setShowForm(false);
   };
 
   const handleEdit = (user) => {
-    setFormData({ name: user.name, email: user.email, role: user.role });
+    setFormData({ name: user.name, email: user.email, role: user.role, password: '' });
     setEditingId(user.id);
     setShowForm(true);
-  };
-
-  const handleDelete = (id) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-      setUsers(users.filter((u) => u.id !== id));
-    }
   };
 
   return (
     <div className="app-container">
       <div className="main-content">
         <div className="page-header">
-          <h1 className="page-title">Mi Perfil</h1>
-          <button className="btn-add" onClick={() => setShowForm(!showForm)}>
-            {showForm ? 'Cancelar' : 'Editar Perfil'}
+          <h1 className="page-title">Gestión de Usuarios (Admin)</h1>
+          <button className="btn-add" onClick={() => { setShowForm(!showForm); setEditingId(null); }}>
+            {showForm ? 'Cancelar' : '+ Nuevo Usuario'}
           </button>
         </div>
 
@@ -63,35 +76,22 @@ function Users() {
             <h2>{editingId ? 'Editar Usuario' : 'Crear Nuevo Usuario'}</h2>
             <div className="form-group">
               <label>Nombre</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
+              <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
             </div>
             <div className="form-group">
               <label>Correo electrónico</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
+              <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
             </div>
             <div className="form-group">
               <label>Rol</label>
-              <select
-                value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              >
+              <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })}>
                 <option>Estudiante</option>
                 <option>Instructor</option>
                 <option>Admin</option>
               </select>
             </div>
             <button type="submit" className="btn-submit">
-              {editingId ? 'Actualizar' : 'Crear'}
+              {editingId ? 'Actualizar (PUT)' : 'Crear (POST)'}
             </button>
           </form>
         )}
@@ -104,31 +104,18 @@ function Users() {
                 <th>Nombre</th>
                 <th>Correo</th>
                 <th>Rol</th>
-                <th>Habilidades</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.id}>
-                  <td>#{user.id}</td>
-                  <td>{user.name}</td>
+                <tr key={user.id || user.user_id}>
+                  <td>#{user.id || user.user_id}</td>
+                  <td>{user.name || user.full_name}</td>
                   <td>{user.email}</td>
                   <td>{user.role}</td>
-                  <td>{user.skills}</td>
                   <td>
-                    <button
-                      className="btn-action btn-edit"
-                      onClick={() => handleEdit(user)}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className="btn-action btn-delete"
-                      onClick={() => handleDelete(user.id)}
-                    >
-                      Eliminar
-                    </button>
+                    <button className="btn-action btn-edit" onClick={() => handleEdit(user)}>Editar (PUT)</button>
                   </td>
                 </tr>
               ))}

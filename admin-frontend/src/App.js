@@ -10,18 +10,24 @@ import './styles/App.css';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState(null); // 'admin' o 'user'
+  const [currentUserId, setCurrentUserId] = useState(null); 
 
-  const handleLogin = () => {
+  const handleLogin = (userData) => {
     setIsAuthenticated(true);
+    setUserRole(userData.role);
+    setCurrentUserId(userData.userId);
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    setUserRole(null);
+    setCurrentUserId(null);
   };
 
   return (
     <Router>
-      {isAuthenticated && <Navbar onLogout={handleLogout} />}
+      {isAuthenticated && <Navbar onLogout={handleLogout} role={userRole} />}
       <Routes>
         <Route
           path="/login"
@@ -35,19 +41,19 @@ function App() {
         />
         <Route
           path="/dashboard"
-          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
+          element={isAuthenticated ? <Dashboard role={userRole} /> : <Navigate to="/login" />}
         />
         <Route
           path="/usuarios"
-          element={isAuthenticated ? <Users /> : <Navigate to="/login" />}
+          element={isAuthenticated && userRole === 'admin' ? <Users /> : <Navigate to="/dashboard" />}
         />
         <Route
           path="/habilidades"
-          element={isAuthenticated ? <Skills /> : <Navigate to="/login" />}
+          element={isAuthenticated ? <Skills role={userRole} userId={currentUserId} /> : <Navigate to="/login" />}
         />
         <Route
           path="/pedidos"
-          element={isAuthenticated ? <Orders /> : <Navigate to="/login" />}
+          element={isAuthenticated && userRole === 'user' ? <Orders userId={currentUserId} /> : <Navigate to="/dashboard" />}
         />
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>

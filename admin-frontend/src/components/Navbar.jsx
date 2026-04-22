@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Navbar.css';
 
-function Navbar({ onLogout }) {
+function Navbar({ onLogout, role }) {
   const location = useLocation();
 
   const isActive = (path) => {
@@ -14,29 +14,33 @@ function Navbar({ onLogout }) {
       <div className="navbar-container">
         <div className="navbar-brand">
           <h1>NovaLink</h1>
-          <span>Admin Panel</span>
+          <span>{role === 'admin' ? 'Admin Panel' : 'User Portal'}</span>
         </div>
         <ul className="navbar-menu">
           <li>
             <Link to="/dashboard" className={`nav-link ${isActive('/dashboard')}`}>
-              Dashboard
+              Inicio
             </Link>
           </li>
-          <li>
-            <Link to="/usuarios" className={`nav-link ${isActive('/usuarios')}`}>
-              Usuarios
-            </Link>
-          </li>
+          {role === 'admin' && (
+            <li>
+              <Link to="/usuarios" className={`nav-link ${isActive('/usuarios')}`}>
+                Gestión de Usuarios
+              </Link>
+            </li>
+          )}
           <li>
             <Link to="/habilidades" className={`nav-link ${isActive('/habilidades')}`}>
-              Catálogo
+              {role === 'admin' ? 'Catálogo Maestras' : 'Comprar Habilidades'}
             </Link>
           </li>
-          <li>
-            <Link to="/pedidos" className={`nav-link ${isActive('/pedidos')}`}>
-              Pedidos
-            </Link>
-          </li>
+          {role === 'user' && (
+            <li>
+              <Link to="/pedidos" className={`nav-link ${isActive('/pedidos')}`}>
+                Mis Habilidades
+              </Link>
+            </li>
+          )}
         </ul>
         <button className="btn-logout" onClick={onLogout}>
           Cerrar sesión
