@@ -50,9 +50,17 @@ function Skills({ role, userId }) {
       });
       
       if (res.ok) {
-        alert("¡Pedido creado exitosamente!");
+        // Ahora sí vincularemos esto a la base de datos de Usuarios para reflejarlo en su perfil
+        const userRes = await fetch(`http://localhost:8002/users/${userId}/skills/${encodeURIComponent(selectedSkill.skill_name || selectedSkill.name)}`, {
+          method: 'POST',
+        });
+        
+        if (userRes.ok) {
+          alert("¡Pedido creado y habilidad adquirida a tu perfil exitosamente!");
+        } else {
+          alert("Pedido creado, pero error vinculando la habilidad a tu perfil.");
+        }
         setShowModal(false);
-        // Aquí opcionalmente podrías llamar al POST /notifications
       } else {
         alert("Error creando pedido");
       }
@@ -64,23 +72,30 @@ function Skills({ role, userId }) {
   const handleAdminSubmit = async (e) => {
     e.preventDefault();
     try {
+      const payload = {
+        skill_name: formData.skill_name,
+        difficulty_level: parseInt(formData.difficulty_level),
+        stock: parseInt(formData.stock)
+      };
+
       if (modalType === 'edit') {
         // PUT /skills/{skill_id}
-        await fetch(`${SKILLS_API_URL}/skills/${selectedSkill.skill_id || selectedSkill.id}`, {
+        await fetch(`${SKILLS_API_URL}/skills/${selectedSkill.skill_id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
+          body: JSON.stringify(payload)
         });
       } else if (modalType === 'create') {
         // POST /skills
         await fetch(`${SKILLS_API_URL}/skills`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
+          body: JSON.stringify(payload)
         });
       }
       fetchSkills();
       setShowModal(false);
+      // Reset form
       setFormData({ skill_name: '', difficulty_level: 1, stock: 10 });
     } catch (error) {
       console.error("Error admin action", error);
@@ -136,11 +151,11 @@ function Skills({ role, userId }) {
               
               <div className="skill-footer">
                 {role === 'user' ? (
-                  <button className="btn-purchase" onClick={() => handlePurchaseClick(skill)}>Pedir (POST /orders)</button>
+                  <button className="btn-purchase" onClick={() => handlePurchaseClick(skill)}>Pedir</button>
                 ) : (
                   <div style={{display: 'flex', gap: '10px'}}>
                     <button className="btn-action btn-edit" onClick={() => { setModalType('edit'); setSelectedSkill(skill); setFormData(skill); setShowModal(true); }}>Editar</button>
-                    <button className="btn-action btn-delete" onClick={() => handleDelete(skill)}>Eliminar(DELETE)</button>
+                    <button className="btn-action btn-delete" onClick={() => handleDelete(skill)}>Eliminar</button>
                   </div>
                 )}
               </div>

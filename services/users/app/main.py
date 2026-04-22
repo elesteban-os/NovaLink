@@ -29,12 +29,12 @@ def read_root():
     return {"message": "Welcome to the Users Microservice API"}
 
 # LOGIN ENDPOINT
-@app.post("/users/login", response_model=bool)
+@app.post("/users/login")
 def login(user_credentials: schemas.UserLogin, db: Session = Depends(get_db)):
     user = crud.get_user_by_email(db, email=user_credentials.email)
     if not user or not security.verify_password(user_credentials.password, user.hashed_password):
-        return False
-    return True
+        return {"success": False, "user_id": None}
+    return {"success": True, "user_id": user.id}
 
 
 # USER ENDPOINTS
@@ -45,12 +45,10 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
     return crud.create_user(db=db, user=user)
 
-@app.get("/users/{user_id}", response_model=schemas.UserResponse)
-def read_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = crud.get_user(db, user_id=user_id)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
+@app.get("/users", response_model=List[schemas.UserResponse])
+def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    users = crud.get_users(db, skip=skip, limit=limit)
+    return users
 
 @app.put("/users/{user_id}", response_model=schemas.UserResponse)
 def update_user(user_id: int, user_update: schemas.UserUpdate, db: Session = Depends(get_db)):

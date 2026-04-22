@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
 import Users from './pages/Users';
 import Skills from './pages/Skills';
 import Orders from './pages/Orders';
@@ -33,19 +32,15 @@ function App() {
           path="/login"
           element={
             isAuthenticated ? (
-              <Navigate to="/dashboard" />
+              <Navigate to="/habilidades" />
             ) : (
               <Login onLogin={handleLogin} />
             )
           }
         />
         <Route
-          path="/dashboard"
-          element={isAuthenticated ? <Dashboard role={userRole} /> : <Navigate to="/login" />}
-        />
-        <Route
           path="/usuarios"
-          element={isAuthenticated && userRole === 'admin' ? <Users /> : <Navigate to="/dashboard" />}
+          element={isAuthenticated && userRole === 'admin' ? <Users /> : <Navigate to="/habilidades" />}
         />
         <Route
           path="/habilidades"
@@ -53,7 +48,7 @@ function App() {
         />
         <Route
           path="/pedidos"
-          element={isAuthenticated && userRole === 'user' ? <Orders userId={currentUserId} /> : <Navigate to="/dashboard" />}
+          element={isAuthenticated && userRole === 'user' ? <Orders userId={currentUserId} /> : <Navigate to="/habilidades" />}
         />
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>

@@ -21,21 +21,18 @@ function Login({ onLogin }) {
       });
 
       if (res.ok) {
-        const isValid = await res.json(); // El backend devuelve "true" o "false"
+        const data = await res.json(); // El backend ahora devuelve { success: boolean, user_id: number }
         
-        if (isValid === true) {
+        if (data.success === true) {
           // Credenciales correctas, validamos el rol
           const email = credentials.email.toLowerCase();
           let role = 'user'; // por defecto
-          let userId = 1; // Asignaremos un ID temporal (luego tu backend debería devolver la data completa del usuario)
+          let userId = data.user_id; // Asignamos el ID real de la base de datos
           
           if (email.includes('@admin')) {
             role = 'admin';
           } else if (email.includes('@user')) {
             role = 'user';
-            // Extraemos un ID simulado tipo "juan@user1.com" -> id 1
-            const idMatch = email.match(/\d+/);
-            userId = idMatch ? parseInt(idMatch[0]) : 1;
           }
 
           onLogin({ role, userId });

@@ -17,11 +17,6 @@ function Navbar({ onLogout, role }) {
           <span>{role === 'admin' ? 'Admin Panel' : 'User Portal'}</span>
         </div>
         <ul className="navbar-menu">
-          <li>
-            <Link to="/dashboard" className={`nav-link ${isActive('/dashboard')}`}>
-              Inicio
-            </Link>
-          </li>
           {role === 'admin' && (
             <li>
               <Link to="/usuarios" className={`nav-link ${isActive('/usuarios')}`}>
