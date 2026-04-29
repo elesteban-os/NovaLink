@@ -24,14 +24,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# LOGIN ENDPOINT
-@app.post("/users/login", status_code=status.HTTP_200_OK)
-def login(user_credentials: schemas.UserLogin, db: Session = Depends(get_db)):
-    user = crud.get_user_by_email(db, email=user_credentials.email)
-    if not user or not security.verify_password(user_credentials.password, user.hashed_password):
-        return {"success": False, "user_id": None}
-    return {"success": True, "user_id": user.id}
-
 
 # USER ENDPOINTS
 @app.post("/users", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)

@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+      - name: auth
+        image: auth-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        env:
+        - name: POSTGRES_USER
+          value: "users_user"
+        - name: POSTGRES_PASSWORD
+          value: "users_pass"
+        - name: POSTGRES_DB
+          value: "users_db"
+        - name: POSTGRES_HOST
+          value: "users-db"
+        - name: POSTGRES_PORT
+          value: "5432"
+        - name: JWT_SECRET
+          value: "SUPER_SECRET_KEY"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: auth
+  ports:
+    - protocol: TCP
+      port: 8006
+      targetPort: 80
