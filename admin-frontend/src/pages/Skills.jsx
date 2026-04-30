@@ -52,9 +52,13 @@ function Skills({ role, userId }) {
         quantity: purchaseQuantity
       };
       
+      const token = localStorage.getItem('token');
       const res = await fetch(`${ORDERS_API_URL}/orders`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(orderPayload)
       });
       
@@ -94,7 +98,7 @@ function Skills({ role, userId }) {
         setShowModal(false);
         setPurchaseQuantity(1);
       } else {
-        alert("Error creando pedido");
+        alert("Error creando pedido. Por favor, intenta nuevamente.");
       }
     } catch (error) {
       console.error("Error en purchase", error);
