@@ -9,6 +9,14 @@ const axiosInstance = axios.create({
   },
 });
 
+axiosInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // Usuarios
 export const getUsersAPI = () => axiosInstance.get('/users');
 export const getUserAPI = (id) => axiosInstance.get(`/users/${id}`);

@@ -9,7 +9,8 @@ class Order(Base):
     user_id = Column(Integer, nullable=False, index=True)
     skill_name = Column(String(255), nullable=False, index=True)
     quantity = Column(Integer, nullable=False)
+    issued_by = Column(String(50), nullable=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     
     def __repr__(self):
-        return f"<Order(id={self.id}, user_id={self.user_id}, skill_name={self.skill_name})>"
+        return f"<Order(id={self.id}, user_id={self.user_id}, skill_name={self.skill_name}, issued_by={self.issued_by})>"

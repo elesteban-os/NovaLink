@@ -22,6 +22,7 @@ function App() {
     setIsAuthenticated(false);
     setUserRole(null);
     setCurrentUserId(null);
+    localStorage.removeItem('token');
   };
 
   return (

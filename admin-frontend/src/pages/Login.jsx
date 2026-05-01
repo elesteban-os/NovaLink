@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import LoginForm from '../components/LoginForm';
 import './Login.css';
 
-const USERS_API_URL = 'http://localhost:8002'; // API de Usuarios
+const AUTH_API_URL = 'http://localhost:8006'; // API de Auth
 
 function Login({ onLogin }) {
   const [loginError, setLoginError] = useState('');
@@ -10,8 +10,8 @@ function Login({ onLogin }) {
   const handleLogin = async (credentials) => {
     setLoginError('');
     try {
-      // Hacemos la petición POST al endpoint real
-      const res = await fetch(`${USERS_API_URL}/users/login`, {
+      // Hacemos la peticion POST al endpoint de auth
+      const res = await fetch(`${AUTH_API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -21,18 +21,17 @@ function Login({ onLogin }) {
       });
 
       if (res.ok) {
-        const data = await res.json(); // El backend ahora devuelve { success: boolean, user_id: number }
+        const data = await res.json(); 
         
-        if (data.success === true) {
-          // Credenciales correctas, validamos el rol
+        if (data.access_token) {
+          localStorage.setItem('token', data.access_token);
+          const payload = JSON.parse(atob(data.access_token.split('.')[1]));
           const email = credentials.email.toLowerCase();
-          let role = 'user'; // por defecto
-          let userId = data.user_id; // Asignamos el ID real de la base de datos
+          let role = 'user'; 
+          let userId = payload.user_id;
           
           if (email.includes('@admin')) {
             role = 'admin';
-          } else if (email.includes('@user')) {
-            role = 'user';
           }
 
           onLogin({ role, userId });
