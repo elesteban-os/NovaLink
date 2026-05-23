@@ -5,7 +5,7 @@ Imprime mensajes de email en consola/logs para propósitos de desarrollo.
 
 import logging
 from datetime import datetime
-from models import Notification
+from services.notifications.app.models import Notification
 
 # Configurar logging
 logging.basicConfig(

@@ -3,9 +3,9 @@ from fastapi import FastAPI, Depends, HTTPException, Query, Request, status
 import jwt
 import os
 from sqlalchemy.orm import Session
-from database import engine, get_db, Base
-from models import Order
-from schemas import OrderCreate, OrderResponse, OrderListResponse
+from services.orders.app.database import engine, get_db, Base
+from services.orders.app.models import Order
+from services.orders.app.schemas import OrderCreate, OrderResponse, OrderListResponse
 
 # Create tables
 Base.metadata.create_all(bind=engine)

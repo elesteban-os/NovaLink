@@ -7,10 +7,10 @@ Integración con simulación de envío de email.
 from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
-from database import Base, engine, get_db
-from models import Notification
-from schemas import NotificationCreate, NotificationResponse, NotificationListResponse
-from email_service import send_email
+from services.notifications.app.database import Base, engine, get_db
+from services.notifications.app.models import Notification
+from services.notifications.app.schemas import NotificationCreate, NotificationResponse, NotificationListResponse
+from services.notifications.app.email_service import send_email
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 

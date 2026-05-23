@@ -5,7 +5,7 @@ Define la estructura de la base de datos.
 
 from sqlalchemy import Column, Integer, String, DateTime, Text
 from sqlalchemy.sql import func
-from database import Base
+from services.notifications.app.database import Base
 from datetime import datetime
 
 
