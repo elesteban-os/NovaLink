@@ -3,7 +3,7 @@ Esquemas Pydantic para validación de datos de entrada y serialización de respu
 Todos los atributos están en minúsculas.
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 
 
@@ -18,14 +18,14 @@ class NotificationCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=255, description="Título de la notificación")
     description: str = Field(..., min_length=1, description="Descripción de la notificación")
 
-    @validator('title')
+    @field_validator('title')
     def title_not_empty(cls, v):
         """Valida que el título no sea solo espacios en blanco."""
         if not v.strip():
             raise ValueError("El título no puede estar vacío")
         return v.strip()
 
-    @validator('description')
+    @field_validator('description')
     def description_not_empty(cls, v):
         """Valida que la descripción no sea solo espacios en blanco."""
         if not v.strip():

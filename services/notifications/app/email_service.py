@@ -3,16 +3,10 @@ Servicio de Email - Simulación de envío de notificaciones
 Imprime mensajes de email en consola/logs para propósitos de desarrollo.
 """
 
-import logging
 from datetime import datetime
-from services.notifications.app.models import Notification
 
-# Configurar logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='[%(asctime)s] [%(levelname)s] %(message)s'
-)
-logger = logging.getLogger(__name__)
+from .logger import logger
+from .models import Notification
 
 
 def send_email(notification: Notification) -> dict:
