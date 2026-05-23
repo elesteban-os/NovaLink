@@ -11,6 +11,7 @@ from .handlers.notifications import router as notifications_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Servicio de Notificaciones iniciado")
+    Base.metadata.create_all(bind=engine)
     yield
     logger.info("Servicio de Notificaciones detenido")
 
@@ -31,6 +32,3 @@ app.add_middleware(
 )
 
 app.include_router(notifications_router)
-
-# Crear las tablas en la base de datos
-Base.metadata.create_all(bind=engine)

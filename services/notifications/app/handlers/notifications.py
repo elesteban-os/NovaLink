@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from ...database import get_db
+from ..database import get_db
 from ..persistence.schemas import NotificationCreate, NotificationResponse
 from ..services.notification_service import create_notification as create_notification_service
 

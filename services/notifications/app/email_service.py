@@ -6,7 +6,7 @@ Imprime mensajes de email en consola/logs para propósitos de desarrollo.
 from datetime import datetime
 
 from .logger import logger
-from .models import Notification
+from .persistence.models import Notification
 
 
 def send_email(notification: Notification) -> dict:
