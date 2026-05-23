@@ -1,8 +1,10 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from datetime import datetime
 from typing import Optional
 
 class OrderCreate(BaseModel):
+    model_config = ConfigDict()
+
     skill_name: str = Field(..., min_length=1, max_length=255, description="Nombre de la habilidad (FK)")
     quantity: int = Field(..., gt=0, description="Cantidad solicitada (debe ser > 0)")
     
@@ -14,17 +16,18 @@ class OrderCreate(BaseModel):
         return v.strip()
 
 class OrderResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     user_id: int
     skill_name: str
     quantity: int
     issued_by: Optional[str]
     created_at: datetime
-    
-    class Config:
-        from_attributes = True
 
 class OrderListResponse(BaseModel):
+    model_config = ConfigDict()
+
     total: int
     count: int
     orders: list[OrderResponse]

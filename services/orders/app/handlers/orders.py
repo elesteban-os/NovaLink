@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
-from ...core.security import verify_token
-from ...database import get_db
+from ..core.security import verify_token
+from ..database import get_db
 from ..persistence.schemas import OrderCreate, OrderResponse
 from ..services.order_service import create_order as create_order_service
 

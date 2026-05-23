@@ -1,6 +1,6 @@
 from fastapi import HTTPException, Request, status
 import jwt
-from ..config import SECRET_KEY, ALGORITHM
+from ..config import settings
 
 
 def verify_token(request: Request) -> int:
@@ -13,7 +13,7 @@ def verify_token(request: Request) -> int:
 
     token = auth_header.split(" ")[1]
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id = payload.get("user_id")
         if user_id is None:
             raise HTTPException(

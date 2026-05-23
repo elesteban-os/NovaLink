@@ -11,6 +11,7 @@ from .handlers.orders import router as orders_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Servicio de Órdenes iniciado")
+    Base.metadata.create_all(bind=engine)
     yield
     logger.info("Servicio de Órdenes detenido")
 
@@ -32,6 +33,3 @@ app.add_middleware(
 )
 
 app.include_router(orders_router)
-
-# Crear las tablas en la base de datos
-Base.metadata.create_all(bind=engine)
