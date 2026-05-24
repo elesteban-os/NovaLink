@@ -43,3 +43,4 @@ yarn-error.log*
 # Project specific
 services/agent-guides/
 wheels/
+services/agent-guides/
