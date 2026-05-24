@@ -20,6 +20,7 @@ from .handlers.notifications import router as notifications_router
 async def lifespan(app: FastAPI):
     """Perform startup and shutdown logging for the notifications service."""
     logger.info("Servicio de Notificaciones iniciado")
+    Base.metadata.create_all(bind=engine)
     yield
     logger.info("Servicio de Notificaciones detenido")
 
@@ -40,6 +41,3 @@ app.add_middleware(
 )
 
 app.include_router(notifications_router)
-
-# Crear las tablas en la base de datos
-Base.metadata.create_all(bind=engine)

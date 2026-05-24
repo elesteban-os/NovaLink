@@ -1,6 +1,6 @@
 """Pydantic schemas for notifications API request and response payloads."""
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime
 
 
@@ -26,7 +26,7 @@ class NotificationCreate(BaseModel):
             raise ValueError("The description cannot be empty")
         return v.strip()
 
-    class Config:
+    model_config = ConfigDict(
         json_schema_extra = {
             "example": {
                 "user_id": 1,
@@ -35,6 +35,7 @@ class NotificationCreate(BaseModel):
                 "description": "Has adquirido la habilidad de Empatía"
             }
         }
+    )
 
 
 class NotificationResponse(BaseModel):
@@ -47,8 +48,8 @@ class NotificationResponse(BaseModel):
     description: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(
+        from_attributes=True,
         json_schema_extra = {
             "example": {
                 "id": 1,
@@ -59,6 +60,7 @@ class NotificationResponse(BaseModel):
                 "created_at": "2026-04-20T10:30:00"
             }
         }
+    )
 
 
 class NotificationListResponse(BaseModel):
@@ -68,7 +70,7 @@ class NotificationListResponse(BaseModel):
     count: int = Field(..., description="Cantidad de notificaciones en esta página")
     notifications: list[NotificationResponse]
 
-    class Config:
+    model_config = ConfigDict(
         json_schema_extra = {
             "example": {
                 "total": 5,
@@ -85,3 +87,4 @@ class NotificationListResponse(BaseModel):
                 ]
             }
         }
+    )
