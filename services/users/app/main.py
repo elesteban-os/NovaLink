@@ -1,3 +1,11 @@
+"""Users service FastAPI application.
+
+Template for this service:
+- Endpoint input: CRUD under `/users` and skill management under `/users/{id}/skills`.
+- Business logic: handled in `UserService` in `services/user_service.py`.
+- Endpoint output: return `UserResponse` and `UserSkillResponse` models.
+"""
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI

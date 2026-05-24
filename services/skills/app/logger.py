@@ -1,36 +1,38 @@
+"""Logging configuration for the skills service."""
+
 import logging
 import sys
 from typing import Optional
 
 
 class LoggerSetup:
-    """Configuración centralizada de logging."""
+    """Centralized logging configuration."""
     
     _logger: Optional[logging.Logger] = None
     
     @classmethod
     def get_logger(cls, name: str = __name__) -> logging.Logger:
         """
-        Obtener logger configurado.
+        Get a configured logger.
         
         Args:
-            name: Nombre del módulo (normalmente __name__)
+            name: Module name (normally __name__)
             
         Returns:
-            Instancia de logger configurada
+            Configured logger instance
         """
         if cls._logger is None:
-            # Configurar formato
+            # Configure formatting
             formatter = logging.Formatter(
                 "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
                 datefmt="%Y-%m-%d %H:%M:%S"
             )
             
-            # Handler a stdout
+            # Handler to stdout
             handler = logging.StreamHandler(sys.stdout)
             handler.setFormatter(formatter)
             
-            # Crear logger
+            # Create logger
             logger = logging.getLogger(name)
             logger.setLevel(logging.INFO)
             logger.addHandler(handler)
@@ -40,5 +42,5 @@ class LoggerSetup:
         return cls._logger
 
 
-# Instancia global
+# Global instance
 logger = LoggerSetup.get_logger(__name__)

@@ -1,3 +1,11 @@
+"""Skills service FastAPI application.
+
+Template for this service:
+- Endpoint input: CRUD operations under `/skills`.
+- Business logic: process skill commands in `SkillService`.
+- Endpoint output: return `SkillResponse` models or health info.
+"""
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,31 +20,31 @@ from app.external.seed_skills import seed_skills
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
-    Maneja inicialización y cleanup de la aplicación.
+    Handle application startup and shutdown.
     
-    - Crea tablas en BD
-    - Seed de datos
-    - Cleanup al cerrar
+    - Create database tables
+    - Seed initial data
+    - Cleanup on shutdown
     """
-    logger.info(f"Iniciando {settings.API_TITLE}")
+    logger.info(f"Starting {settings.API_TITLE}")
     
-    # Crear tablas
+    # Create tables
     Base.metadata.create_all(bind=engine)
-    logger.info("Tablas de BD creadas/verificadas")
+    logger.info("Database tables created/verified")
     
-    # Seed de datos
+    # Seed initial data
     try:
         seed_skills(reset=False)
         logger.info("Datos iniciales de skills sembrados")
     except Exception as e:
-        logger.warning(f"No se pudieron seedear skills: {e}")
+        logger.warning(f"Could not seed skills: {e}")
     
     yield
     
-    logger.info("Cerrando aplicación")
+    logger.info("Shutting down application")
 
 
-# Crear aplicación
+# Create application
 app = FastAPI(
     title=settings.API_TITLE,
     description=settings.API_DESCRIPTION,
@@ -44,7 +52,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Configurar CORS
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -53,23 +61,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Incluir routers
+# Include routers
 app.include_router(skills.router)
 
 # Health check
 @app.get("/health", tags=["health"])
 def health_check():
-    """Verificar estado de salud de la API."""
+    """Check API health status."""
     return {
         "status": "ok",
         "service": settings.API_TITLE,
         "version": settings.API_VERSION
     }
 
-# Raíz
+# Root
 @app.get("/", tags=["info"])
 def root():
-    """Información de la API."""
+    """API information."""
     return {
         "service": settings.API_TITLE,
         "version": settings.API_VERSION,

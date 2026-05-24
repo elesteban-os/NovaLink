@@ -1,3 +1,5 @@
+"""Persistence layer CRUD operations for skills."""
+
 from sqlalchemy.orm import Session
 from typing import List, Optional
 

@@ -1,3 +1,8 @@
+"""SQLAlchemy ORM models for the users service.
+
+Defines `User` and `UserSkill` models and their relationships.
+"""
+
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
@@ -6,14 +11,14 @@ from app.database import Base
 
 
 class User(Base):
-    """Modelo de Usuario."""
+    """User ORM model representing application users."""
     
     __tablename__ = "users"
 
-    # Identificador
+    # Identifier
     id = Column(Integer, primary_key=True, index=True)
     
-    # Datos del usuario
+    # User fields
     email = Column(String(255), unique=True, index=True, nullable=False)
     first_name = Column(String(255), nullable=False)
     last_name = Column(String(255), nullable=False)
@@ -24,7 +29,7 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    # Relaciones
+    # Relationships
     skills = relationship("UserSkill", back_populates="user", cascade="all, delete-orphan")
     
     def __repr__(self) -> str:
@@ -32,7 +37,7 @@ class User(Base):
 
 
 class UserSkill(Base):
-    """Modelo de Habilidad de Usuario (relación muchos-a-muchos)."""
+    """UserSkill ORM model linking users to acquired skills and points."""
     
     __tablename__ = "user_skills"
 
@@ -45,7 +50,7 @@ class UserSkill(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    # Relaciones
+    # Relationships
     user = relationship("User", back_populates="skills")
     
     def __repr__(self) -> str:

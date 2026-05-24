@@ -1,3 +1,10 @@
+"""Persistence layer CRUD operations for users and user skills.
+
+This module implements low-level DB operations used by the service layer.
+Functions follow a simple contract: receive a `Session` and domain data,
+perform DB actions, commit/refresh and return ORM objects or booleans.
+"""
+
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -10,15 +17,14 @@ from app.logger import logger
 # ===== USER CRUD =====
 
 def create_user(db: Session, user_data: UserCreate) -> User:
-    """
-    Crear nuevo usuario en BD.
-    
+    """Create a new user record in the database.
+
     Args:
-        db: Sesión de BD
-        user_data: Datos a crear
-        
+        db: Database session
+        user_data: Data used to create the user
+
     Returns:
-        Usuario creado
+        The created User ORM instance
     """
     hashed_password = get_password_hash(user_data.password)
     db_user = User(
@@ -30,17 +36,17 @@ def create_user(db: Session, user_data: UserCreate) -> User:
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    logger.info(f"Usuario creado: {db_user.id} ({db_user.email})")
+    logger.info(f"User created: {db_user.id} ({db_user.email})")
     return db_user
 
 
 def get_user(db: Session, user_id: int) -> Optional[User]:
-    """Obtener usuario por ID."""
+    """Return a user by its ID or None if not found."""
     return db.query(User).filter(User.id == user_id).first()
 
 
 def get_user_by_email(db: Session, email: str) -> Optional[User]:
-    """Obtener usuario por email."""
+    """Return a user by email address or None if not found."""
     return db.query(User).filter(User.email == email).first()
 
 
@@ -50,17 +56,16 @@ def get_users(
     limit: int = 100,
     is_active: Optional[bool] = True
 ) -> List[User]:
-    """
-    Listar usuarios con paginación.
-    
+    """List users with pagination and optional active-state filter.
+
     Args:
-        db: Sesión de BD
-        skip: Saltar registros
-        limit: Límite de registros
-        is_active: Filtrar por estado (None = todos)
-        
+        db: Database session
+        skip: Number of records to skip
+        limit: Maximum number of records to return
+        is_active: Filter by active state (None = all)
+
     Returns:
-        Lista de usuarios
+        List of User ORM instances
     """
     query = db.query(User)
     
@@ -71,20 +76,19 @@ def get_users(
 
 
 def update_user(db: Session, db_user: User, user_data: UserUpdate) -> User:
-    """
-    Actualizar usuario.
-    
+    """Update an existing user instance with the provided data.
+
     Args:
-        db: Sesión de BD
-        db_user: Instancia del usuario
-        user_data: Datos de actualización
-        
+        db: Database session
+        db_user: User ORM instance to update
+        user_data: Fields to update
+
     Returns:
-        Usuario actualizado
+        The updated User ORM instance
     """
     update_data = user_data.model_dump(exclude_unset=True)
     
-    # Hash de password si se proporciona
+    # Hash password if provided
     if "password" in update_data:
         update_data["hashed_password"] = get_password_hash(update_data.pop("password"))
         
@@ -94,38 +98,37 @@ def update_user(db: Session, db_user: User, user_data: UserUpdate) -> User:
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    logger.info(f"Usuario actualizado: {db_user.id}")
+    logger.info(f"User updated: {db_user.id}")
     return db_user
 
 
 def delete_user(db: Session, user_id: int) -> bool:
-    """
-    Eliminar usuario (soft delete).
-    
+    """Soft-delete a user by marking it inactive.
+
     Args:
-        db: Sesión de BD
-        user_id: ID del usuario
-        
+        db: Database session
+        user_id: ID of the user to deactivate
+
     Returns:
-        True si fue eliminado, False si no existe
+        True if deactivated, False if user not found
     """
     db_user = get_user(db, user_id)
     
     if not db_user:
-        logger.warning(f"Usuario no encontrado: {user_id}")
+        logger.warning(f"User not found: {user_id}")
         return False
     
     db_user.is_active = False
     db.add(db_user)
     db.commit()
-    logger.info(f"Usuario desactivado: {user_id}")
+    logger.info(f"User deactivated: {user_id}")
     return True
 
 
 # ===== USER SKILL CRUD =====
 
 def get_user_skills(db: Session, user_id: int) -> List[UserSkill]:
-    """Obtener todas las skills de un usuario."""
+    """Return all skills associated with a given user."""
     return db.query(UserSkill).filter(UserSkill.user_id == user_id).all()
 
 
@@ -134,17 +137,7 @@ def add_user_skill(
     user_id: int,
     skill_data: UserSkillCreate
 ) -> UserSkill:
-    """
-    Agregar skill a usuario (o incrementar puntos si ya existe).
-    
-    Args:
-        db: Sesión de BD
-        user_id: ID del usuario
-        skill_data: Datos del skill
-        
-    Returns:
-        User skill creado o actualizado
-    """
+    """Add a skill to a user or increment points if the skill exists."""
     # Verificar si el skill ya existe
     existing_skill = db.query(UserSkill).filter(
         UserSkill.user_id == user_id,
@@ -152,14 +145,14 @@ def add_user_skill(
     ).first()
     
     if existing_skill:
-        logger.info(f"Skill ya existe para usuario {user_id}, incrementando puntos")
+        logger.info(f"Skill already exists for user {user_id}, incrementing points")
         existing_skill.points += skill_data.points
         db.add(existing_skill)
         db.commit()
         db.refresh(existing_skill)
         return existing_skill
         
-    # Crear nuevo skill
+    # Create new skill
     db_skill = UserSkill(
         user_id=user_id,
         skill_name=skill_data.skill_name,
@@ -168,21 +161,20 @@ def add_user_skill(
     db.add(db_skill)
     db.commit()
     db.refresh(db_skill)
-    logger.info(f"Skill agregado a usuario {user_id}: {skill_data.skill_name}")
+    logger.info(f"Skill added to user {user_id}: {skill_data.skill_name}")
     return db_skill
 
 
 def remove_user_skill(db: Session, user_id: int, skill_name: str) -> bool:
-    """
-    Remover skill de usuario.
-    
+    """Remove a skill from a user.
+
     Args:
-        db: Sesión de BD
-        user_id: ID del usuario
-        skill_name: Nombre del skill
-        
+        db: Database session
+        user_id: ID of the user
+        skill_name: Name of the skill to remove
+
     Returns:
-        True si fue removido, False si no existe
+        True if removed, False if not found
     """
     db_skill = db.query(UserSkill).filter(
         UserSkill.user_id == user_id,
@@ -190,10 +182,10 @@ def remove_user_skill(db: Session, user_id: int, skill_name: str) -> bool:
     ).first()
     
     if not db_skill:
-        logger.warning(f"Skill no encontrado para usuario {user_id}: {skill_name}")
+        logger.warning(f"Skill not found for user {user_id}: {skill_name}")
         return False
     
     db.delete(db_skill)
     db.commit()
-    logger.info(f"Skill removido de usuario {user_id}: {skill_name}")
+    logger.info(f"Skill removed from user {user_id}: {skill_name}")
     return True

@@ -1,3 +1,5 @@
+"""Logging setup for the orders service."""
+
 import logging
 
 logger = logging.getLogger("orders_service")

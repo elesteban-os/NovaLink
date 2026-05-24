@@ -1,8 +1,13 @@
-from pydantic import BaseModel, Field, field_validator
+"""Pydantic schemas for request and response models in the orders service."""
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from datetime import datetime
 from typing import Optional
 
 class OrderCreate(BaseModel):
+    """Payload schema for creating an order."""
+    model_config = ConfigDict()
+
     skill_name: str = Field(..., min_length=1, max_length=255, description="Nombre de la habilidad (FK)")
     quantity: int = Field(..., gt=0, description="Cantidad solicitada (debe ser > 0)")
     
@@ -14,6 +19,9 @@ class OrderCreate(BaseModel):
         return v.strip()
 
 class OrderResponse(BaseModel):
+    """Response schema for order details."""
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     user_id: int
     skill_name: str
@@ -25,6 +33,9 @@ class OrderResponse(BaseModel):
         from_attributes = True
 
 class OrderListResponse(BaseModel):
+    """Response schema for a list of orders with pagination metadata."""
+    model_config = ConfigDict()
+
     total: int
     count: int
     orders: list[OrderResponse]

@@ -1,3 +1,5 @@
+"""Notification business logic service."""
+
 from sqlalchemy.orm import Session
 
 from ..persistence.crud import create_notification as create_notification_db
@@ -7,7 +9,7 @@ from ..persistence.schemas import NotificationCreate
 
 
 def create_notification(db: Session, notification_data: NotificationCreate):
-    """Create a new notification record and send the simulated email."""
+    """Create a notification in the database and send a simulated email."""
     db_notification = create_notification_db(db, notification_data)
     logger.info(
         "Notificacion creada: id=%s user_id=%s order_id=%s title=%s",

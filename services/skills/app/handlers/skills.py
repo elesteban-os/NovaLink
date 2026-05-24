@@ -1,3 +1,12 @@
+"""HTTP handlers for the skills service.
+
+Template for this service:
+- Endpoint input: POST, GET, PUT, DELETE on `/skills`.
+- Business logic: validate and delegate to `SkillService`.
+- Endpoint output: skill DTOs or HTTP status codes.
+
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
@@ -7,7 +16,7 @@ from app.persistence.schemas import SkillCreate, SkillUpdate, SkillResponse
 from app.services.skill_service import SkillService
 from app.logger import logger
 
-# Configurar router
+# Configure router
 router = APIRouter(prefix="/skills", tags=["skills"])
 service = SkillService()
 
@@ -27,11 +36,11 @@ def create_skill(
     db: Session = Depends(get_db)
 ):
     """
-    Crear nuevo skill.
+    Create a new skill.
     
-    - **skill_name**: Nombre del skill (requerido)
-    - **difficulty_level**: Dificultad entre 0 y 10
-    - **stock**: Stock disponible
+    - **skill_name**: Skill name (required)
+    - **difficulty_level**: Difficulty between 0 and 10
+    - **stock**: Available stock
     """
     try:
         return service.create_skill(db, obj_in)
@@ -59,7 +68,7 @@ def get_skills(
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
-    """Listar skills con paginación."""
+    """List skills with pagination."""
     try:
         return service.get_skills(db, skip=skip, limit=limit)
     except Exception as e:
@@ -82,7 +91,7 @@ def get_skill(
     skill_id: int,
     db: Session = Depends(get_db)
 ):
-    """Obtener detalles de un skill."""
+    """Get skill details by ID."""
     try:
         return service.get_skill(db, skill_id)
     except ValueError as e:
@@ -112,7 +121,7 @@ def update_skill(
     obj_in: SkillUpdate,
     db: Session = Depends(get_db)
 ):
-    """Actualizar skill."""
+    """Update skill details."""
     try:
         return service.update_skill(db, skill_id, obj_in)
     except ValueError as e:
@@ -141,7 +150,7 @@ def delete_skill(
     skill_id: int,
     db: Session = Depends(get_db)
 ):
-    """Eliminar skill."""
+    """Delete skill by ID."""
     try:
         success = service.delete_skill(db, skill_id)
         if not success:

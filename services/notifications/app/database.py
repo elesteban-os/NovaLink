@@ -1,27 +1,25 @@
-"""
-Configuración de la conexión a PostgreSQL y sesiones de SQLAlchemy.
-"""
+"""PostgreSQL database connection and SQLAlchemy session utilities."""
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 from .config import settings
 
-# Motor de SQLAlchemy
+# SQLAlchemy engine for notifications database
 engine = create_engine(
     settings.DATABASE_URL,
     echo=settings.DB_ECHO,
 )
 
-# Factory para crear sesiones
+# Factory for SQLAlchemy database sessions
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base para los modelos
+# Base class for SQLAlchemy ORM models
 Base = declarative_base()
 
 
 def get_db():
-    """Generador de dependencia para obtener la sesión de la base de datos."""
+    """Yield a database session instance and ensure it is closed after use."""
     db = SessionLocal()
     try:
         yield db

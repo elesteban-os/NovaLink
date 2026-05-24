@@ -1,3 +1,5 @@
+"""SQLAlchemy ORM models for the skills service."""
+
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Boolean
 

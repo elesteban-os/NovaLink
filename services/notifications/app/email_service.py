@@ -6,7 +6,7 @@ Imprime mensajes de email en consola/logs para propósitos de desarrollo.
 from datetime import datetime
 
 from .logger import logger
-from .models import Notification
+from .persistence.models import Notification
 
 
 def send_email(notification: Notification) -> dict:
@@ -43,12 +43,12 @@ En produccion se utilizaria un servicio de email real.
 ════════════════════════════════════════════════════════════
 """
     
-    # Registrar en logs del servidor
-    logger.info(f"Enviando notificacion por email - Notification ID: {notification.id}, User ID: {notification.user_id}")
-    logger.info(f"Asunto: {notification.title}")
-    logger.info(f"Descripcion: {notification.description}")
+    # Log the simulated email send event
+    logger.info(f"Sending notification email - Notification ID: {notification.id}, User ID: {notification.user_id}")
+    logger.info(f"Subject: {notification.title}")
+    logger.info(f"Description: {notification.description}")
     
-    # Imprimir en consola para visibilidad inmediata
+    # Print email body to console for development visibility
     print(email_body)
     
     return {

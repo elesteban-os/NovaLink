@@ -1,3 +1,11 @@
+"""Notifications microservice API entrypoint.
+
+Template for this service:
+- Endpoint input: POST /notifications with NotificationCreate.
+- Business logic: persist notification and send simulated email.
+- Endpoint response: return NotificationResponse with created notification.
+"""
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -10,7 +18,9 @@ from .handlers.notifications import router as notifications_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Perform startup and shutdown logging for the notifications service."""
     logger.info("Servicio de Notificaciones iniciado")
+    Base.metadata.create_all(bind=engine)
     yield
     logger.info("Servicio de Notificaciones detenido")
 
@@ -31,6 +41,3 @@ app.add_middleware(
 )
 
 app.include_router(notifications_router)
-
-# Crear las tablas en la base de datos
-Base.metadata.create_all(bind=engine)

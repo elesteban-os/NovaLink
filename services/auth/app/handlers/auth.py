@@ -1,3 +1,9 @@
+"""Auth router definitions.
+
+This module exposes the login endpoint and delegates credential validation
+and token creation to the AuthService.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -12,6 +18,7 @@ service = AuthService()
 
 @router.post("/login", response_model=Token, status_code=status.HTTP_200_OK)
 def login(user_credentials: UserLogin, db: Session = Depends(get_db)) -> Token:
+    """Authenticate the user and return a JWT token on success."""
     token = service.login(db, user_credentials)
     if not token:
         logger.warning("Unauthorized login attempt")

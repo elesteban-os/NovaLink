@@ -7,16 +7,16 @@ from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 # ===== USER SCHEMAS =====
 
 class UserCreate(BaseModel):
-    """Schema para creación de usuario."""
+    """Schema for creating a new user."""
     
-    email: EmailStr = Field(..., description="Email del usuario")
-    first_name: str = Field(..., min_length=1, max_length=255, description="Nombre")
-    last_name: str = Field(..., min_length=1, max_length=255, description="Apellido")
-    password: str = Field(..., min_length=8, description="Contraseña (mínimo 8 caracteres)")
+    email: EmailStr = Field(..., description="User email")
+    first_name: str = Field(..., min_length=1, max_length=255, description="First name")
+    last_name: str = Field(..., min_length=1, max_length=255, description="Last name")
+    password: str = Field(..., min_length=8, description="Password (minimum 8 characters)")
 
 
 class UserUpdate(BaseModel):
-    """Schema para actualización de usuario."""
+    """Schema for updating a user."""
     
     first_name: Optional[str] = Field(None, min_length=1, max_length=255)
     last_name: Optional[str] = Field(None, min_length=1, max_length=255)
@@ -24,7 +24,7 @@ class UserUpdate(BaseModel):
 
 
 class UserResponse(BaseModel):
-    """Schema para respuesta de usuario."""
+    """Schema for user response serialization."""
     
     id: int
     email: EmailStr
@@ -38,7 +38,7 @@ class UserResponse(BaseModel):
     @field_validator('skills', mode='before')
     @classmethod
     def extract_skills(cls, v):
-        """Extraer nombres de skills del ORM."""
+        """Extract skill names from ORM relationships or return passed list."""
         if not v:
             return []
         # Si ya son strings
@@ -55,14 +55,14 @@ class UserResponse(BaseModel):
 # ===== AUTH SCHEMAS =====
 
 class UserLogin(BaseModel):
-    """Schema para login de usuario."""
+    """Schema for user login requests."""
     
-    email: EmailStr = Field(..., description="Email del usuario")
-    password: str = Field(..., description="Contraseña")
+    email: EmailStr = Field(..., description="User email")
+    password: str = Field(..., description="Password")
 
 
 class Token(BaseModel):
-    """Schema para respuesta de token."""
+    """Schema for JWT token response."""
     
     access_token: str
     token_type: str = "bearer"
@@ -71,14 +71,14 @@ class Token(BaseModel):
 # ===== USER SKILL SCHEMAS =====
 
 class UserSkillCreate(BaseModel):
-    """Schema para agregar skill a usuario."""
+    """Schema for adding a skill to a user."""
     
     skill_name: str = Field(..., min_length=1, max_length=255)
     points: int = Field(default=1, ge=1)
 
 
 class UserSkillResponse(BaseModel):
-    """Schema para respuesta de user skill."""
+    """Schema for user skill response serialization."""
     
     id: int
     user_id: int

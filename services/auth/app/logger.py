@@ -3,7 +3,7 @@ import sys
 
 
 class LoggerSetup:
-    """Configuración centralizada de logging para el servicio Auth."""
+    """Centralized logging setup for the Auth service."""
 
     @staticmethod
     def get_logger(name: str = __name__) -> logging.Logger:
