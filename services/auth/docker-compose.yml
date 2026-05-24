@@ -1,0 +1,29 @@
+services:
+  postgres_auth:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth_db
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data
+
+  auth_api:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "8007:8000"
+    depends_on:
+      - postgres_auth
+    environment:
+      POSTGRES_HOST: postgres_auth
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+volumes:
+  postgres_auth_data:
+    name: postgres_auth_data

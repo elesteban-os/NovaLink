@@ -1,8 +1,11 @@
+"""SQLAlchemy models for the orders service."""
+
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.sql import func
 from ...database import Base
 
 class Order(Base):
+    """Database model for an order record."""
     __tablename__ = "orders"
     
     id = Column(Integer, primary_key=True, index=True)

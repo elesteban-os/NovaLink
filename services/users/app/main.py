@@ -1,20 +1,38 @@
-from fastapi import FastAPI, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from typing import List
+"""Users service FastAPI application.
 
-from . import models, schemas, crud, security
-from .database import engine, get_db
-from .seed_users import seed_users
+Template for this service:
+- Endpoint input: CRUD under `/users` and skill management under `/users/{id}/skills`.
+- Business logic: handled in `UserService` in `services/user_service.py`.
+- Endpoint output: return `UserResponse` and `UserSkillResponse` models.
+"""
 
-# Crea la tablas de la DB
-models.Base.metadata.create_all(bind=engine)
+from contextlib import asynccontextmanager
 
-# Sembrar usuarios de prueba
-seed_users()
-
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="Users Microservice")
+from app.config import settings
+from app.database import Base, engine
+from app.external.seed_users import seed_users
+from app.handlers.users import router as users_router
+from app.logger import logger
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Starting Users Microservice")
+    Base.metadata.create_all(bind=engine)
+    seed_users()
+    yield
+    logger.info("Shutting down Users Microservice")
+
+
+app = FastAPI(
+    title=settings.API_TITLE,
+    description=settings.API_DESCRIPTION,
+    version=settings.API_VERSION,
+    lifespan=lifespan,
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -24,44 +42,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(users_router)
 
-# USER ENDPOINTS
-@app.post("/users", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
 
-@app.get("/users", response_model=List[schemas.UserResponse], status_code=status.HTTP_200_OK)
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = crud.get_users(db, skip=skip, limit=limit)
-    return users
+@app.get("/health")
+def health():
+    return {
+        "status": "ok",
+        "service": settings.API_TITLE,
+        "version": settings.API_VERSION,
+    }
 
-@app.put("/users/{user_id}", response_model=schemas.UserResponse, status_code=status.HTTP_200_OK)
-def update_user(user_id: int, user_update: schemas.UserUpdate, db: Session = Depends(get_db)):
-    db_user = crud.get_user(db, user_id=user_id)
-    if db_user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return crud.update_user(db=db, db_user=db_user, user_update=user_update)
 
-# SKILL ENDPOINTS
-class UserSkillDetail(schemas.BaseModel):
-    skill_name: str
-    points: int
-
-@app.get("/users/{user_id}/skills", response_model=List[UserSkillDetail])
-def read_user_skills(user_id: int, db: Session = Depends(get_db)):
-    db_user = crud.get_user(db, user_id=user_id)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    skills = crud.get_user_skills(db=db, user_id=user_id)
-    return [{"skill_name": skill.skill_name, "points": getattr(skill, "points", 1)} for skill in skills]
-
-@app.post("/users/{user_id}/skills/{skill}", response_model=UserSkillDetail, status_code=status.HTTP_201_CREATED)
-def add_skill_to_user(user_id: int, skill: str, quantity: int = 1, db: Session = Depends(get_db)):
-    db_user = crud.get_user(db, user_id=user_id)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    new_skill = crud.add_user_skill(db=db, user_id=user_id, skill_name=skill, quantity=quantity)
-    return {"skill_name": new_skill.skill_name, "points": getattr(new_skill, "points", 1)}
+@app.get("/")
+def root():
+    return {
+        "message": "Users Microservice is running",
+        "api_version": settings.API_VERSION,
+    }

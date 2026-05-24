@@ -1,14 +1,38 @@
-from fastapi import FastAPI, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+"""Auth microservice API entrypoint.
+
+Template for this service:
+- Endpoint input: POST /auth/login with UserLogin payload.
+- Business logic: validate credentials in AuthService.login.
+- Endpoint response: return JWT bearer token or 401 unauthorized.
+"""
+
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from . import schemas
-from .database import get_db, engine, Base
-from .service import AuthService
 
-Base.metadata.create_all(bind=engine)
+from app.config import settings
+from app.database import Base, engine, wait_for_db
+from app.handlers.auth import router as auth_router
+from app.logger import logger
 
-app = FastAPI(title="Auth Microservice")
-auth_service = AuthService()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage application startup and shutdown lifecycle events."""
+    logger.info("Starting Auth Microservice")
+    wait_for_db()
+    Base.metadata.create_all(bind=engine)
+    yield
+    logger.info("Shutting down Auth Microservice")
+
+
+app = FastAPI(
+    title=settings.API_TITLE,
+    description=settings.API_DESCRIPTION,
+    version=settings.API_VERSION,
+    lifespan=lifespan,
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,13 +42,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/auth/login", response_model=schemas.Token)
-def login(user_credentials: schemas.UserLogin, db: Session = Depends(get_db)):
-    token = auth_service.login(db, user_credentials)
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return token
+app.include_router(auth_router)
+
+
+@app.get("/health")
+def health():
+    """Return a minimal health status for the auth service."""
+    return {
+        "status": "ok",
+        "service": settings.API_TITLE,
+        "version": settings.API_VERSION,
+    }
+
+
+@app.get("/")
+def root():
+    """Return a simple running status message for the service."""
+    return {
+        "message": "Auth Microservice is running",
+        "api_version": settings.API_VERSION,
+    }

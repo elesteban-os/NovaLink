@@ -1,21 +1,49 @@
 services:
-  api:
+  postgres_skills:
+    image: postgres:15-alpine
+    container_name: postgres_skills
+    environment:
+      POSTGRES_USER: ${DB_USER:-novalink_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-novalink_password}
+      POSTGRES_DB: ${DB_NAME:-skills_db}
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_skills_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-novalink_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - novalink_network
+
+  skills_api:
     build: .
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    container_name: skills_api
+    depends_on:
+      postgres_skills:
+        condition: service_healthy
+    environment:
+      DB_USER: ${DB_USER:-novalink_user}
+      DB_PASSWORD: ${DB_PASSWORD:-novalink_password}
+      DB_HOST: postgres_skills
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-skills_db}
+      DB_ECHO: ${DB_ECHO:-false}
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 8000
     ports:
       - "8000:8000"
-    env_file:
-      - .env
-    depends_on:
-      - db
     volumes:
-      - ./app:/app/app
+      - .:/app
+    networks:
+      - novalink_network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: mydb
-    ports:
-      - "5432:5432"
+volumes:
+  postgres_skills_data:
+
+networks:
+  novalink_network:
+    driver: bridge

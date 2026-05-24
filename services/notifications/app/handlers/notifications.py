@@ -1,3 +1,5 @@
+"""Notifications API router definitions."""
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -5,7 +7,7 @@ from ..database import get_db
 from ..persistence.schemas import NotificationCreate, NotificationResponse
 from ..services.notification_service import create_notification as create_notification_service
 
-router = APIRouter(tags=["Notificaciones"])
+router = APIRouter(tags=["notifications"])
 
 
 @router.post(
@@ -22,4 +24,8 @@ def create_notification(
     notification: NotificationCreate,
     db: Session = Depends(get_db),
 ):
+    """Handle incoming notification creation requests.
+
+    Persist the notification and trigger the simulated email send.
+    """
     return create_notification_service(db, notification)

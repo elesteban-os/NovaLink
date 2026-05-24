@@ -1,27 +1,39 @@
-import os
+"""Database engine, session factory and dependency provider for the users service.
+
+Provides `engine`, `SessionLocal`, `Base` and `get_db()` dependency used by handlers.
+"""
+
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker, declarative_base, Session
 
-# Conexion con PostgreSQL 
-# Usamos variables de entorno para configurar la conexión a la base de datos, con valores por defecto para desarrollo local. En producción, estas variables deberían ser configuradas adecuadamente.
-POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
-POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "postgres")
-POSTGRES_DB = os.getenv("POSTGRES_DB", "users_db")
-POSTGRES_HOST = os.getenv("POSTGRES_HOST", "db")
-POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
+from app.config import settings
+from app.logger import logger
 
-SQLALCHEMY_DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+# Create SQLAlchemy engine
+engine = create_engine(
+    settings.DATABASE_URL,
+    echo=settings.DB_ECHO,
+)
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+# Session factory
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
+# Base class for ORM models
 Base = declarative_base()
 
-# Dependencia para obtener la sesión de la base de datos
-def get_db():
+
+def get_db() -> Session:
+    """Dependency that yields a database session for request handlers."""
     db = SessionLocal()
     try:
         yield db
+    except Exception as e:
+        logger.error(f"Database session error: {e}")
+        db.rollback()
+        raise
     finally:
         db.close()
