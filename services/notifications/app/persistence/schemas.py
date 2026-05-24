@@ -1,17 +1,11 @@
-"""
-Esquemas Pydantic para validación de datos de entrada y serialización de respuestas.
-Todos los atributos están en minúsculas.
-"""
+"""Pydantic schemas for notifications API request and response payloads."""
 
 from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 
 
 class NotificationCreate(BaseModel):
-    """
-    Esquema para crear una nueva notificación.
-    Valida que los datos recibidos sean correctos.
-    """
+    """Schema for validating notification creation requests."""
     
     user_id: int = Field(..., gt=0, description="ID del usuario (debe ser positivo)")
     order_id: int = Field(..., gt=0, description="ID del pedido (debe ser positivo)")
@@ -20,16 +14,16 @@ class NotificationCreate(BaseModel):
 
     @field_validator('title')
     def title_not_empty(cls, v):
-        """Valida que el título no sea solo espacios en blanco."""
+        """Ensure the notification title is not empty or whitespace only."""
         if not v.strip():
-            raise ValueError("El título no puede estar vacío")
+            raise ValueError("The title cannot be empty")
         return v.strip()
 
     @field_validator('description')
     def description_not_empty(cls, v):
-        """Valida que la descripción no sea solo espacios en blanco."""
+        """Ensure the notification description is not empty or whitespace only."""
         if not v.strip():
-            raise ValueError("La descripción no puede estar vacía")
+            raise ValueError("The description cannot be empty")
         return v.strip()
 
     class Config:
@@ -44,10 +38,7 @@ class NotificationCreate(BaseModel):
 
 
 class NotificationResponse(BaseModel):
-    """
-    Esquema para la respuesta de una notificación.
-    Se utiliza para serializar datos de la base de datos.
-    """
+    """Schema for serializing a single notification response."""
     
     id: int
     user_id: int
@@ -71,9 +62,7 @@ class NotificationResponse(BaseModel):
 
 
 class NotificationListResponse(BaseModel):
-    """
-    Esquema para la respuesta de lista de notificaciones con paginación.
-    """
+    """Schema for paginated notification list responses."""
     
     total: int = Field(..., description="Total de notificaciones")
     count: int = Field(..., description="Cantidad de notificaciones en esta página")

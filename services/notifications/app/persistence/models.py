@@ -1,7 +1,4 @@
-"""
-Modelos SQLAlchemy para la tabla de notificaciones.
-Define la estructura de la base de datos.
-"""
+"""SQLAlchemy models for notifications storage."""
 
 from sqlalchemy import Column, Integer, String, DateTime, Text
 from sqlalchemy.sql import func
@@ -9,17 +6,7 @@ from ...database import Base
 
 
 class Notification(Base):
-    """
-    Modelo de notificación en la base de datos.
-    
-    Atributos:
-        id: Identificador único de la notificación
-        user_id: ID del usuario que recibe la notificación
-        order_id: ID del pedido asociado a la notificación
-        title: Título de la notificación
-        description: Descripción detallada de la notificación
-        created_at: Fecha y hora de creación (generada automáticamente)
-    """
+    """Database model representing a user notification."""
     
     __tablename__ = "notifications"
 
@@ -31,5 +18,5 @@ class Notification(Base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     def __repr__(self):
-        """Representación en string del objeto."""
+        """Return a compact string representation of the notification."""
         return f"<Notification(id={self.id}, user_id={self.user_id}, order_id={self.order_id})>"

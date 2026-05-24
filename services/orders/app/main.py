@@ -1,3 +1,12 @@
+"""Order service FastAPI application.
+
+Template for this service:
+- Endpoint input: POST `/orders` with `OrderCreate`.
+- Business logic: create order in `create_order` service.
+- Endpoint output: return `OrderResponse`.
+
+"""
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -16,7 +25,7 @@ async def lifespan(app: FastAPI):
     logger.info("Servicio de Órdenes detenido")
 
 
-# Crear la aplicación FastAPI
+# Create FastAPI application
 app = FastAPI(
     title="Servicio de Órdenes",
     description="Gestiona las órdenes de habilidades de los usuarios",
@@ -33,3 +42,6 @@ app.add_middleware(
 )
 
 app.include_router(orders_router)
+
+# Create database tables
+Base.metadata.create_all(bind=engine)

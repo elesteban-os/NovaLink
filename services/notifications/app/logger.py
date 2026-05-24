@@ -1,3 +1,5 @@
+"""Logger configuration for the notifications service."""
+
 import logging
 
 logger = logging.getLogger("notifications_service")

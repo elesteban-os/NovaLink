@@ -1,3 +1,5 @@
+"""Database engine and session dependency provider for the orders service."""
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
@@ -9,7 +11,7 @@ Base = declarative_base()
 
 
 def get_db():
-    """Generador de dependencia para obtener la sesión de la base de datos."""
+    """Obtain the session of database."""
     db = SessionLocal()
     try:
         yield db

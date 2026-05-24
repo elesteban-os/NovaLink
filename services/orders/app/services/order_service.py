@@ -1,3 +1,11 @@
+"""Order business logic for the orders service.
+
+Template for this service:
+- Input: DB session, authenticated `user_id`, and `OrderCreate`.
+- Business logic: persist order using `create_order_db` and log creation.
+- Output: returned `Order` ORM object.
+"""
+
 from sqlalchemy.orm import Session
 
 from ..persistence.crud import create_order as create_order_db
