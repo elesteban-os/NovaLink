@@ -3,7 +3,7 @@ from pydantic import Field
 
 
 class Settings(BaseSettings):
-    """Configuración de entorno del servicio."""
+    """Environment configuration for the skills service."""
     
     # ===== DATABASE =====
     DB_USER: str = Field(..., env="DB_USER")
@@ -29,12 +29,12 @@ class Settings(BaseSettings):
     
     @property
     def DATABASE_URL(self) -> str:
-        """Construir URL de base de datos."""
+        """Build the database URL."""
         return (
             f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@"
             f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         )
 
 
-# Instancia global
+# Global instance
 settings = Settings()

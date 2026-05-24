@@ -1,3 +1,5 @@
+"""SQLAlchemy models for the Auth service."""
+
 from sqlalchemy import Column, Integer, String
 
 from app.database import Base

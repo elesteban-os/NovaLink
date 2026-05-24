@@ -1,3 +1,11 @@
+"""Business logic layer for skills management.
+
+Template for this service:
+- Input: validation requests from HTTP handlers.
+- Business logic: duplicate checks, existence checks, and persistence.
+- Output: domain `Skill` entities.
+"""
+
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -8,23 +16,23 @@ from app.logger import logger
 
 
 class SkillService:
-    """Servicio de lógica de negocio para skills."""
+    """Business logic service for skills."""
     
     def create_skill(self, db: Session, obj_in: SkillCreate) -> Skill:
         """
-        Crear nuevo skill con validaciones de negocio.
+        Create a new skill with business validation.
         
         Args:
-            db: Sesión de BD
-            obj_in: Datos a crear
+            db: Database session
+            obj_in: Input data for the skill
             
         Returns:
-            Skill creado
+            Created Skill
             
         Raises:
-            ValueError: Si hay validación fallida
+            ValueError: If validation fails
         """
-        # Validar que no exista duplicado
+        # Check duplicate skill
         existing = db.query(Skill).filter(
             Skill.skill_name.ilike(obj_in.skill_name)
         ).first()
@@ -38,10 +46,10 @@ class SkillService:
     
     def get_skill(self, db: Session, skill_id: int) -> Skill:
         """
-        Obtener skill con validación.
+        Retrieve a skill and validate existence.
         
         Raises:
-            ValueError: Si el skill no existe
+            ValueError: If the skill does not exist
         """
         db_obj = crud.get_skill(db, skill_id)
         
@@ -57,7 +65,7 @@ class SkillService:
         skip: int = 0,
         limit: int = 100
     ) -> List[Skill]:
-        """Listar skills."""
+        """List skills."""
         return crud.get_skills(db, skip=skip, limit=limit)
     
     def update_skill(
@@ -67,10 +75,10 @@ class SkillService:
         obj_in: SkillUpdate
     ) -> Skill:
         """
-        Actualizar skill.
+        Update a skill.
         
         Raises:
-            ValueError: Si el skill no existe
+            ValueError: If the skill does not exist
         """
         db_obj = self.get_skill(db, skill_id)
         logger.info(f"Actualizando skill: {skill_id}")
@@ -78,14 +86,14 @@ class SkillService:
     
     def delete_skill(self, db: Session, skill_id: int) -> bool:
         """
-        Eliminar skill.
+        Delete a skill.
         
         Returns:
-            True si fue eliminado
+            True if deleted
             
         Raises:
-            ValueError: Si el skill no existe
+            ValueError: If the skill does not exist
         """
-        self.get_skill(db, skill_id)  # Validar existencia
+        self.get_skill(db, skill_id)  # Validate existence
         logger.info(f"Eliminando skill: {skill_id}")
         return crud.delete_skill(db, skill_id)

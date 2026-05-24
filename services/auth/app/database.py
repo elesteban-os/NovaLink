@@ -1,3 +1,5 @@
+"""Database setup and helper utilities for the Auth service."""
+
 import time
 
 from sqlalchemy import create_engine
@@ -19,7 +21,7 @@ Base = declarative_base()
 
 
 def wait_for_db(max_retries: int = 10, delay_seconds: float = 1.0) -> None:
-    """Esperar a que la base de datos PostgreSQL esté disponible."""
+    """Retry database connectivity until PostgreSQL accepts connections."""
     for attempt in range(1, max_retries + 1):
         try:
             with engine.connect() as connection:
@@ -36,6 +38,7 @@ def wait_for_db(max_retries: int = 10, delay_seconds: float = 1.0) -> None:
 
 
 def get_db() -> Session:
+    """Yield a new database session and ensure it is closed after use."""
     db = SessionLocal()
     try:
         yield db

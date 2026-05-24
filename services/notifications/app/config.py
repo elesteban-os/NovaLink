@@ -1,9 +1,11 @@
+"""Application configuration settings for the notifications service."""
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
 
 class Settings(BaseSettings):
-    """Application settings loaded from .env and environment variables."""
+    """Environment and database configuration for notifications."""
 
     DB_USER: str = Field(..., env="DB_USER")
     DB_PASSWORD: str = Field(..., env="DB_PASSWORD")
@@ -24,6 +26,7 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:
+        """Build the PostgreSQL database URL from environment settings."""
         return (
             f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@"
             f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"

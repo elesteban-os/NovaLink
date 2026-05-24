@@ -1,3 +1,5 @@
+"""Application settings for the orders service loaded from environment variables."""
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
@@ -25,6 +27,7 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:
+        """SQLAlchemy connection URL built from database settings."""
         return (
             f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@"
             f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"

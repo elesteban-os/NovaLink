@@ -1,3 +1,11 @@
+"""HTTP handlers (routers) for the users service.
+
+Template for this service:
+- Endpoint input: POST/GET/PUT/DELETE `/users` and skill endpoints under `/users/{id}/skills`.
+- Business logic: validate and delegate to `user_service`.
+- Endpoint output: `UserResponse` or `UserSkillResponse` DTOs, or appropriate HTTP codes.
+"""
+
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status

@@ -1,40 +1,38 @@
+"""Database engine, session factory and dependency provider for the users service.
+
+Provides `engine`, `SessionLocal`, `Base` and `get_db()` dependency used by handlers.
+"""
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 
 from app.config import settings
 from app.logger import logger
 
-# Crear engine
+# Create SQLAlchemy engine
 engine = create_engine(
     settings.DATABASE_URL,
     echo=settings.DB_ECHO,
 )
 
-# Sesiones
+# Session factory
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine
 )
 
-# Base para modelos ORM
+# Base class for ORM models
 Base = declarative_base()
 
 
 def get_db() -> Session:
-    """
-    Dependencia para obtener sesión de BD en endpoints.
-    
-    Uso en handlers:
-        @app.get("/users")
-        def get_users(db: Session = Depends(get_db)):
-            return crud.get_users(db)
-    """
+    """Dependency that yields a database session for request handlers."""
     db = SessionLocal()
     try:
         yield db
     except Exception as e:
-        logger.error(f"Error en sesión BD: {e}")
+        logger.error(f"Database session error: {e}")
         db.rollback()
         raise
     finally:

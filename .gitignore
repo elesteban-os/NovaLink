@@ -3,3 +3,9 @@
 *.pyc
 ARCHITECTURE_CLEAN_LAYERS.md
 IMPLEMENTATION_STATUS.md
+__pycache__/
+.docs/
+*.pyo
+*.pyd
+.Python
+services/agent-guides/

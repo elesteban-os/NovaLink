@@ -2,7 +2,7 @@ import os
 
 
 class Settings:
-    """Configuración de entorno para el servicio Auth."""
+    """Environment settings for the Auth service."""
 
     POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "postgres")
@@ -23,6 +23,7 @@ class Settings:
 
     @property
     def DATABASE_URL(self) -> str:
+        """Build the PostgreSQL database connection URL from environment settings."""
         return (
             f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@"
             f"{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"

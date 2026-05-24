@@ -1,3 +1,5 @@
+"""JWT and password security utilities for the Auth service."""
+
 import datetime
 import jwt
 from passlib.context import CryptContext
@@ -8,14 +10,17 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Check whether the provided plain password matches the hashed password."""
     return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
+    """Hash a plain password using bcrypt for secure storage."""
     return pwd_context.hash(password)
 
 
 def create_access_token(data: dict, expires_delta: datetime.timedelta | None = None) -> str:
+    """Generate a signed JWT token with an expiration timestamp."""
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.datetime.utcnow() + expires_delta
@@ -27,4 +32,5 @@ def create_access_token(data: dict, expires_delta: datetime.timedelta | None = N
 
 
 def decode_access_token(token: str) -> dict:
+    """Decode and verify a JWT token using the configured secret and algorithm."""
     return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])

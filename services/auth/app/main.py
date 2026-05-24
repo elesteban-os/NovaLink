@@ -1,3 +1,11 @@
+"""Auth microservice API entrypoint.
+
+Template for this service:
+- Endpoint input: POST /auth/login with UserLogin payload.
+- Business logic: validate credentials in AuthService.login.
+- Endpoint response: return JWT bearer token or 401 unauthorized.
+"""
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -11,6 +19,7 @@ from app.logger import logger
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Manage application startup and shutdown lifecycle events."""
     logger.info("Starting Auth Microservice")
     wait_for_db()
     Base.metadata.create_all(bind=engine)
@@ -38,6 +47,7 @@ app.include_router(auth_router)
 
 @app.get("/health")
 def health():
+    """Return a minimal health status for the auth service."""
     return {
         "status": "ok",
         "service": settings.API_TITLE,
@@ -47,6 +57,7 @@ def health():
 
 @app.get("/")
 def root():
+    """Return a simple running status message for the service."""
     return {
         "message": "Auth Microservice is running",
         "api_version": settings.API_VERSION,

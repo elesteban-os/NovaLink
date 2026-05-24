@@ -3,25 +3,17 @@ from typing import Optional
 
 
 class LoggerSetup:
-    """Configuración centralizada de logging."""
+    """Centralized logging configuration for the Users service."""
     
     _logger: Optional[logging.Logger] = None
     
     @classmethod
     def get_logger(cls, name: str = __name__) -> logging.Logger:
-        """
-        Obtener logger configurado.
-        
-        Args:
-            name: Nombre del logger (usualmente __name__)
-            
-        Returns:
-            Logger configurado
-        """
+        """Return a configured logger instance for the given name."""
         if cls._logger is None:
             cls._logger = logging.getLogger(name)
             
-            # Solo configurar si no tiene handlers
+            # Configure only when no handlers are present
             if not cls._logger.handlers:
                 handler = logging.StreamHandler()
                 formatter = logging.Formatter(
@@ -34,5 +26,5 @@ class LoggerSetup:
         return cls._logger
 
 
-# Instancia global
+# Global logger instance
 logger = LoggerSetup.get_logger(__name__)

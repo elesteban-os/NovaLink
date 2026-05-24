@@ -1,3 +1,8 @@
+"""Seed data helper for the skills service.
+
+This module loads initial skill records into the database during startup.
+"""
+
 from __future__ import annotations
 
 import sys
@@ -36,13 +41,13 @@ SKILLS = [
 
 def seed_skills(reset: bool = False) -> int:
     """
-    Sembrar skills iniciales en la BD.
+    Seed initial skills into the database.
     
     Args:
-        reset: Si True, elimina todas las skills antes de sembrar
+        reset: If True, drop all skills before seeding
         
     Returns:
-        Número de skills creados
+        Number of skills created
     """
     if reset:
         logger.info("Eliminando todos los skills...")

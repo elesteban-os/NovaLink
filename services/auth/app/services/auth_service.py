@@ -9,9 +9,10 @@ from app.security.auth import create_access_token, verify_password
 
 
 class AuthService:
-    """Lógica de negocio para autenticación."""
+    """Authentication business logic for the Auth service."""
 
     def login(self, db: Session, user_credentials: UserLogin) -> Token | None:
+        """Validate user credentials and return an access token for authorized users."""
         user = get_user_by_email(db, user_credentials.email)
         if not user:
             logger.warning("Login failed: user not found")
