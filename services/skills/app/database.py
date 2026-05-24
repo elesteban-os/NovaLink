@@ -26,9 +26,9 @@ def get_db() -> Session:
     Dependencia para obtener sesión de BD en endpoints.
     
     Uso en handlers:
-        @app.get("/users")
-        def get_users(db: Session = Depends(get_db)):
-            return crud.get_users(db)
+        @app.get("/skills")
+        def get_skills(db: Session = Depends(get_db)):
+            return crud.get_skills(db)
     """
     db = SessionLocal()
     try:
