@@ -75,6 +75,38 @@ class SkillService:
         db_obj = self.get_skill(db, skill_id)
         logger.info(f"Actualizando skill: {skill_id}")
         return crud.update_skill(db, db_obj, obj_in)
+
+    def reserve_stock(self, db: Session, skill_name: str, quantity: int) -> Skill:
+        """Reduce el stock de un skill si hay cantidad disponible."""
+        db_obj = db.query(Skill).filter(
+            Skill.skill_name == skill_name,
+            Skill.is_active.is_(True)
+        ).first()
+
+        if not db_obj:
+            logger.warning(f"Skill no encontrado para reserva: {skill_name}")
+            raise ValueError(f"Skill '{skill_name}' no encontrado")
+
+        if db_obj.stock < quantity:
+            logger.warning(
+                "Stock insuficiente para %s: disponible=%s, requerido=%s",
+                skill_name,
+                db_obj.stock,
+                quantity,
+            )
+            raise ValueError(f"Stock insuficiente para '{skill_name}'")
+
+        db_obj.stock -= quantity
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+
+        logger.info(
+            "Stock reservado para %s: restante=%s",
+            skill_name,
+            db_obj.stock,
+        )
+        return db_obj
     
     def delete_skill(self, db: Session, skill_id: int) -> bool:
         """
