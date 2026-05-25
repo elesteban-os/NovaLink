@@ -8,3 +8,10 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - novalink_network
+
+networks:
+  novalink_network:
+    name: novalink_network
+    driver: bridge

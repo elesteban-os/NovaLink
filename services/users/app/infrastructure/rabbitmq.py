@@ -33,12 +33,18 @@ def build_connection_parameters() -> pika.ConnectionParameters:
     if broker_url:
         return pika.URLParameters(broker_url)
 
+    host = os.getenv("RABBITMQ_HOST", "localhost")
+    port = int(os.getenv("RABBITMQ_PORT", "5672"))
+    vhost = os.getenv("RABBITMQ_VHOST", "/")
+    user = os.getenv("RABBITMQ_USER", "guest")
+    # Log connection target to help debugging DNS/resolution issues
+    print(f"[rabbitmq] connecting to {host}:{port} vhost={vhost} user={user}")
     return pika.ConnectionParameters(
-        host=os.getenv("RABBITMQ_HOST", "localhost"),
-        port=int(os.getenv("RABBITMQ_PORT", "5672")),
-        virtual_host=os.getenv("RABBITMQ_VHOST", "/"),
+        host=host,
+        port=port,
+        virtual_host=vhost,
         credentials=pika.PlainCredentials(
-            os.getenv("RABBITMQ_USER", "guest"),
+            user,
             os.getenv("RABBITMQ_PASSWORD", "guest"),
         ),
     )

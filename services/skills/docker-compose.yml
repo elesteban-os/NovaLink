@@ -11,7 +11,7 @@ services:
     volumes:
       - postgres_skills_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-novalink_user}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-novalink_user} -d ${DB_NAME:-skills_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -33,6 +33,11 @@ services:
       DB_ECHO: ${DB_ECHO:-false}
       SERVER_HOST: 0.0.0.0
       SERVER_PORT: 8000
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-novalink-rabbitmq}
+      RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/}
     ports:
       - "8000:8000"
     volumes:
@@ -41,9 +46,34 @@ services:
       - novalink_network
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
+  skills_worker:
+    build: .
+    container_name: skills_worker
+    restart: always
+    depends_on:
+      postgres_skills:
+        condition: service_healthy
+    environment:
+      DB_USER: ${DB_USER:-novalink_user}
+      DB_PASSWORD: ${DB_PASSWORD:-novalink_password}
+      DB_HOST: postgres_skills
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-skills_db}
+      DB_ECHO: ${DB_ECHO:-false}
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-novalink-rabbitmq}
+      RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/}
+    volumes:
+      - .:/app
+    networks:
+      - novalink_network
+    command: python -m app.infrastructure.event_worker run
+
 volumes:
   postgres_skills_data:
 
 networks:
   novalink_network:
-    driver: bridge
+    external: true

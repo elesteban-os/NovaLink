@@ -7,7 +7,7 @@ import json
 from typing import Any
 
 from app.database import SessionLocal
-from app.rabbitmq import (
+from app.infrastructure.rabbitmq import (
     QUEUE_INVENTORY,
     ROUTING_KEY_INVENTORY_CONFIRMED,
     ROUTING_KEY_ORDER_CREATED,

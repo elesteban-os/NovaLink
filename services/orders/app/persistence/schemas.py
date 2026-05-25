@@ -28,13 +28,10 @@ class OrderResponse(BaseModel):
     quantity: int
     issued_by: Optional[str]
     created_at: datetime
-    
-    class Config:
-        from_attributes = True
 
 class OrderListResponse(BaseModel):
     """Response schema for a list of orders with pagination metadata."""
-    model_config = ConfigDict()
+    model_config = ConfigDict(from_attributes=True)
 
     total: int
     count: int

@@ -30,12 +30,50 @@ services:
     depends_on:
       postgres_users:
         condition: service_healthy
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST:-postgres_users}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME}
+      DB_ECHO: ${DB_ECHO}
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-novalink-rabbitmq}
+      RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/}
     networks:
       - novalink_network
+
+  users_worker:
+    build: .
+    container_name: users_worker
+    restart: always
+    env_file: .env
+    depends_on:
+      postgres_users:
+        condition: service_healthy
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: postgres_users
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_ECHO: ${DB_ECHO}
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-novalink-rabbitmq}
+      RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/}
+    volumes:
+      - .:/app
+    networks:
+      - novalink_network
+    command: python -m app.infrastructure.event_worker run
 
 volumes:
   postgres_users_data:
 
 networks:
   novalink_network:
-    driver: bridge
+    external: true

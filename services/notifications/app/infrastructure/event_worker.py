@@ -7,7 +7,7 @@ import json
 
 from app.database import SessionLocal
 from app.persistence.schemas import NotificationCreate
-from app.rabbitmq import (
+from app.infrastructure.rabbitmq import (
     QUEUE_NOTIFICATIONS,
     ROUTING_KEY_USER_UPDATED,
     consume_forever,

@@ -3,5 +3,5 @@ uvicorn[standard]
 sqlalchemy
 psycopg2-binary
 python-dotenv
-pika==1.7.4
+pika>=1.3.2
 pydantic-settings

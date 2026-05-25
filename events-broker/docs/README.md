@@ -135,6 +135,124 @@ Después dispara el evento inicial desde otra terminal:
 python events-broker/services/orders/orders.py publish
 ```
 
+## Probar con los servicios reales de NovaLink
+
+Para validar el flujo con los servicios reales en `services/*`, sigue estos pasos:
+
+1. Inicia RabbitMQ desde el broker:
+
+```bash
+docker compose -f events-broker/docker-compose.yml up -d
+```
+
+2. Asegúrate de que la red `novalink_network` exista y sea la misma que usan los servicios reales.
+   - El compose del broker ya crea la red con `name: novalink_network`.
+   - Los `docker-compose.yml` de `services/users`, `services/skills`, `services/notifications`, `services/orders` están configurados para usar esa red externa.
+
+3. Arranca cada servicio real (API + worker) en su propio compose o sus propios contenedores.
+   - En `services/users`: `users_api` y `users_worker`
+   - En `services/skills`: `skills_api` y `skills_worker`
+   - En `services/notifications`: `notifications_api` y `notifications_worker`
+   - En `services/orders`: `orders_api`
+
+4. Verifica que cada servicio vea el broker como `rabbitmq` gracias a la red compartida.
+
+5. Genera un pedido real desde el servicio de órdenes o desde su API, y observa cómo el flujo avanza:
+   - `orders` publica `pedido.creado`
+   - `skills` consume `pedido.creado` y publica `inventario.confirmado`
+   - `users` consume `inventario.confirmado` y publica `usuario.actualizado`
+   - `notifications` consume `usuario.actualizado`
+
+### Comandos exactos en orden
+
+Abre varias terminales si quieres ver logs separados, pero si usas `-d` no es obligatorio.
+
+Terminal 1 (broker RabbitMQ):
+
+```bash
+docker compose -f c:/Users/ederv/Desktop/1S2026/Soa41d/P2/NovaLink/events-broker/docker-compose.yml up -d
+```
+
+Terminal 2 (orders):
+
+```bash
+docker compose -f c:/Users/ederv/Desktop/1S2026/Soa41d/P2/NovaLink/services/orders/docker-compose.yml up -d
+```
+
+Terminal 3 (skills):
+
+```bash
+docker compose -f c:/Users/ederv/Desktop/1S2026/Soa41d/P2/NovaLink/services/skills/docker-compose.yml up -d
+```
+
+Terminal 4 (users):
+
+```bash
+docker compose -f c:/Users/ederv/Desktop/1S2026/Soa41d/P2/NovaLink/services/users/docker-compose.yml up -d
+```
+
+Terminal 5 (notifications):
+
+```bash
+docker compose -f c:/Users/ederv/Desktop/1S2026/Soa41d/P2/NovaLink/services/notifications/docker-compose.yml up -d
+```
+
+Opcional: si necesitas el servicio de auth para obtener JWT válido, abre otra terminal:
+
+```bash
+docker compose -f c:/Users/ederv/Desktop/1S2026/Soa41d/P2/NovaLink/services/auth/docker-compose.yml up -d
+```
+
+### Probar el flujo real con una orden
+
+Después de levantar todo, usa otra terminal para llamar al endpoint de órdenes. Si tu servicio requiere token JWT, reemplaza `<JWT_TOKEN>` por uno válido del servicio de auth.
+
+```bash
+curl -X POST http://localhost:8005/orders \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <JWT_TOKEN>" \
+  -d '{"skill_name":"python","quantity":1,"description":"Prueba de broker"}'
+```
+
+Si no usas auth, el endpoint devuelve 401 y debes obtener token desde `auth`.
+
+### Ver logs en terminales separadas
+
+Si quieres ver la actividad de cada servicio sin `-d`, usa:
+
+```bash
+docker compose logs -f users_worker
+```
+
+o en la carpeta del servicio correspondiente:
+
+```bash
+docker compose logs -f skills_worker
+```
+
+### Qué revisar si no funciona
+
+- Levanta RabbitMQ:
+
+```bash
+docker compose -f events-broker/docker-compose.yml up -d
+```
+
+- Levanta el broker de servicios reales (en cada carpeta de servicio):
+
+```bash
+docker compose up -d
+```
+
+- Luego envía un pedido real desde `orders` o desde su endpoint REST.
+
+### Qué revisar si no funciona
+
+- Que RabbitMQ esté vivo en `rabbitmq:5672` dentro de los contenedores.
+- Que los servicios reales estén unidos a `novalink_network`.
+- Que `RABBITMQ_HOST` en los servicios sea `rabbitmq` y no `localhost`.
+- Que los workers reales ejecuten `python app/infrastructure/event_worker.py run`.
+
 ## Modo de prueba de un solo mensaje
 
 Si no quieres dejar procesos corriendo, puedes usar `once` en los consumidores:

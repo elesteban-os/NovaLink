@@ -8,7 +8,7 @@ from typing import Any
 
 from app.database import SessionLocal
 from app.persistence.schemas import UserSkillCreate
-from app.rabbitmq import (
+from app.infrastructure.rabbitmq import (
     QUEUE_USERS,
     ROUTING_KEY_INVENTORY_CONFIRMED,
     ROUTING_KEY_USER_UPDATED,

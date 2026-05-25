@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from ..persistence.crud import create_order as create_order_db
 from ..logger import logger
 from ..persistence.schemas import OrderCreate
-from app.rabbitmq import publish_event, ROUTING_KEY_ORDER_CREATED
+from app.infrastructure.rabbitmq import publish_event, ROUTING_KEY_ORDER_CREATED
 
 
 def create_order(db: Session, user_id: int, order_data: OrderCreate):
