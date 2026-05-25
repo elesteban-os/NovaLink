@@ -1,29 +1,22 @@
-import os
 import logging
 
-import jwt
 import pytest
 
 logger = logging.getLogger(__name__)
 from tests.test_utils import log_assert_equal, log_info
 
 
-def _build_token(user_id: int) -> str:
-    return jwt.encode(
-        {"user_id": user_id},
-        os.environ["JWT_SECRET"],
-        algorithm=os.environ["JWT_ALGORITHM"],
-    )
+def _auth_headers(token: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer {token}"}
 
 
-def test_create_order_endpoint(client):
+def test_create_order_endpoint(client, auth_token):
     """Verifica que POST /orders crea una orden y devuelve el payload correcto."""
     logger.info("[TEST] Ejecutando: test_create_order_endpoint -> POST /orders")
-    token = _build_token(1)
     response = client.post(
         "/orders",
         json={"skill_name": "FastAPI", "quantity": 1},
-        headers={"Authorization": f"Bearer {token}"},
+        headers=_auth_headers(auth_token),
     )
 
     log_assert_equal(201, response.status_code, "status_code for POST /orders")
@@ -57,13 +50,12 @@ def test_create_order_endpoint_invalid_token(client):
     log_assert_equal("Invalid token", response.json()["detail"], "error detail when token invalid")
 
 
-def test_create_order_endpoint_blank_skill_name_returns_422(client):
-    token = _build_token(1)
+def test_create_order_endpoint_blank_skill_name_returns_422(client, auth_token):
     logger.info("[TEST] Ejecutando: test_create_order_endpoint_blank_skill_name_returns_422 -> skill_name en blanco")
     response = client.post(
         "/orders",
         json={"skill_name": "   ", "quantity": 1},
-        headers={"Authorization": f"Bearer {token}"},
+        headers=_auth_headers(auth_token),
     )
 
     log_assert_equal(422, response.status_code, "status_code when blank skill_name")
@@ -71,13 +63,12 @@ def test_create_order_endpoint_blank_skill_name_returns_422(client):
     assert any(error["loc"][-1] == "skill_name" for error in errors)
 
 
-def test_create_order_endpoint_negative_quantity_returns_422(client):
-    token = _build_token(1)
+def test_create_order_endpoint_negative_quantity_returns_422(client, auth_token):
     logger.info("[TEST] Ejecutando: test_create_order_endpoint_negative_quantity_returns_422 -> quantity <= 0")
     response = client.post(
         "/orders",
         json={"skill_name": "FastAPI", "quantity": 0},
-        headers={"Authorization": f"Bearer {token}"},
+        headers=_auth_headers(auth_token),
     )
 
     log_assert_equal(422, response.status_code, "status_code when negative quantity")
