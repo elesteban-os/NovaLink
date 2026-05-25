@@ -163,45 +163,72 @@ docker compose -f events-broker/docker-compose.yml up -d
    - `users` consume `inventario.confirmado` y publica `usuario.actualizado`
    - `notifications` consume `usuario.actualizado`
 
-### Comandos exactos en orden
+### Probar el flujo real con auth y token JWT
 
-Abre varias terminales si quieres ver logs separados, pero si usas `-d` no es obligatorio.
-
-Terminal 1 (broker RabbitMQ):
+1. Levanta RabbitMQ y todos los servicios reales desde la carpeta raíz `NovaLink`:
 
 ```bash
-docker compose -f c:/Users/ederv/Desktop/1S2026/Soa41d/P2/NovaLink/events-broker/docker-compose.yml up -d
+# Broker
+docker compose -f events-broker/docker-compose.yml up -d
+
+# Servicios reales
+docker compose -f services/orders/docker-compose.yml up -d
+docker compose -f services/skills/docker-compose.yml up -d
+docker compose -f services/users/docker-compose.yml up -d
+docker compose -f services/notifications/docker-compose.yml up -d
+docker compose -f services/auth/docker-compose.yml up -d
 ```
 
-Terminal 2 (orders):
-
-```bash
-docker compose -f c:/Users/ederv/Desktop/1S2026/Soa41d/P2/NovaLink/services/orders/docker-compose.yml up -d
+> Recomendación: si has cambiado código en un servicio, reconstruye la imagen antes de levantarlo con cache desactivado para asegurarte de usar la versión más reciente.
+>
+> ```bash
+docker compose -f services/orders/docker-compose.yml build --no-cache
+docker compose -f services/skills/docker-compose.yml build --no-cache
+docker compose -f services/users/docker-compose.yml build --no-cache
+docker compose -f services/notifications/docker-compose.yml build --no-cache
+docker compose -f services/auth/docker-compose.yml build --no-cache
+```
+>
+> Luego arranca los servicios:
+>
+> ```bash
+docker compose -f services/orders/docker-compose.yml up -d
+docker compose -f services/skills/docker-compose.yml up -d
+docker compose -f services/users/docker-compose.yml up -d
+docker compose -f services/notifications/docker-compose.yml up -d
+docker compose -f services/auth/docker-compose.yml up -d
 ```
 
-Terminal 3 (skills):
+2. Obtén el token desde el servicio `auth`:
 
-```bash
-docker compose -f c:/Users/ederv/Desktop/1S2026/Soa41d/P2/NovaLink/services/skills/docker-compose.yml up -d
+En PowerShell, ejecuta cada línea por separado:
+
+```powershell
+$body = '{"email":"test@example.com","password":"password123"}'
+$resp = Invoke-RestMethod -Method Post -Uri 'http://localhost:8007/auth/login' -ContentType 'application/json' -Body $body
+$token = $resp.access_token
+Write-Output $token
 ```
 
-Terminal 4 (users):
+3. Crea la orden en el servicio `orders` usando el JWT:
 
-```bash
-docker compose -f c:/Users/ederv/Desktop/1S2026/Soa41d/P2/NovaLink/services/users/docker-compose.yml up -d
+```powershell
+$headers = @{'Content-Type'  = 'application/json'; 'Authorization' = "Bearer $token"}
+$body = '{"skill_name":"python","quantity":1}'
+Invoke-RestMethod -Method Post -Uri 'http://localhost:8005/orders' -Headers $headers -Body $body
 ```
 
-Terminal 5 (notifications):
+4. Si prefieres `curl.exe` en PowerShell, usa los siguientes comandos:
 
-```bash
-docker compose -f c:/Users/ederv/Desktop/1S2026/Soa41d/P2/NovaLink/services/notifications/docker-compose.yml up -d
+```powershell
+curl.exe -X POST "http://localhost:8007/auth/login" -H "Content-Type: application/json" -d '{"email":"test@example.com","password":"password123"}'
 ```
 
-Opcional: si necesitas el servicio de auth para obtener JWT válido, abre otra terminal:
-
-```bash
-docker compose -f c:/Users/ederv/Desktop/1S2026/Soa41d/P2/NovaLink/services/auth/docker-compose.yml up -d
+```powershell
+curl.exe -X POST "http://localhost:8005/orders" -H "Content-Type: application/json" -H "Authorization: Bearer $token" -d '{"skill_name":"amistad","quantity":1}'
 ```
+
+Si obtienes 401, verifica que el token se haya copiado completo y que el servicio `auth` está levantado en `http://localhost:8007`.
 
 ### Probar el flujo real con una orden
 
@@ -217,7 +244,7 @@ curl -X POST http://localhost:8005/orders \
 Si no usas auth, el endpoint devuelve 401 y debes obtener token desde `auth`.
 
 ### Ver logs en terminales separadas
-
+Seb p8eden ver en la aplicación de docker desktop
 Si quieres ver la actividad de cada servicio sin `-d`, usa:
 
 ```bash
