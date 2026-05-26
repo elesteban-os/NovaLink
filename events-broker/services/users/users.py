@@ -31,6 +31,8 @@ from shared.rabbitmq_api import (
 	consume_once,
 	publish_event,
 )
+from shared.redis_api import is_event_processed, mark_event_processed
+
 
 
 def assign_skill(inventory_confirmation: dict[str, Any]) -> dict[str, Any]:
@@ -52,12 +54,20 @@ def assign_skill(inventory_confirmation: dict[str, Any]) -> dict[str, Any]:
 def handle_inventory_confirmed(inventory_confirmation: dict[str, Any]) -> None:
 	"""Handle `inventario.confirmado` and publish `usuario.actualizado`."""
 
+	event_id = str(inventory_confirmation.get("pedido_id", "unknown"))
+	
+	if is_event_processed(QUEUE_USERS, event_id):
+		print(f"[usuarios] IGNORADO: El evento {event_id} ya fue procesado anteriormente.")
+		return
+
 	print(
 		f"[usuarios] received {ROUTING_KEY_INVENTORY_CONFIRMED}: "
 		f"{json.dumps(inventory_confirmation, ensure_ascii=False)}"
 	)
 	user_update = assign_skill(inventory_confirmation)
 	publish_event(ROUTING_KEY_USER_UPDATED, user_update)
+	
+	mark_event_processed(QUEUE_USERS, event_id)
 	print(f"[usuarios] published {ROUTING_KEY_USER_UPDATED}: {user_update}")
 
 
