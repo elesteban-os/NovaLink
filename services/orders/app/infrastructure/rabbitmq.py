@@ -19,10 +19,12 @@ except ImportError:  # pragma: no cover - fallback for older pika layouts
 EXCHANGE_NAME = "novalink.events"
 ROUTING_KEY_ORDER_CREATED = "pedido.creado"
 ROUTING_KEY_INVENTORY_CONFIRMED = "inventario.confirmado"
+ROUTING_KEY_INVENTORY_OUT_OF_STOCK = "inventario.sin_stock"
 ROUTING_KEY_USER_UPDATED = "usuario.actualizado"
 
 QUEUE_INVENTORY = "inventario.pedido.creado"
 QUEUE_USERS = "usuarios.inventario.confirmado"
+QUEUE_INVENTORY_OUT_OF_STOCK = "orders.inventario.sin_stock"
 QUEUE_NOTIFICATIONS = "notificaciones.usuario.actualizado"
 
 MessageHandler = Callable[[dict[str, Any]], None]
