@@ -1,8 +1,9 @@
 name: SAST y Análisis Estático Ligero
 
 on:
+  workflow_dispatch:
   push:
-    branches: ["main"]
+    branches: ["main", "SAST"]
     paths:
       - '**/*.py'
       - '.github/workflows/sast.yml'
