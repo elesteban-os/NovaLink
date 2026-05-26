@@ -10,6 +10,7 @@ from app.database import SessionLocal
 from app.infrastructure.rabbitmq import (
     QUEUE_INVENTORY,
     ROUTING_KEY_INVENTORY_CONFIRMED,
+    ROUTING_KEY_INVENTORY_OUT_OF_STOCK,
     ROUTING_KEY_ORDER_CREATED,
     consume_forever,
     consume_once,
@@ -39,11 +40,14 @@ def handle_order_created(order: dict[str, Any]) -> None:
         try:
             service.reserve_stock(db, order["skill_name"], order["quantity"])
             payload = build_inventory_confirmation(order, True)
+            publish_event(ROUTING_KEY_INVENTORY_CONFIRMED, payload)
+            print(f"[inventario] published {ROUTING_KEY_INVENTORY_CONFIRMED}: {payload}")
+            return
         except ValueError as exc:
             payload = build_inventory_confirmation(order, False, str(exc))
 
-    publish_event(ROUTING_KEY_INVENTORY_CONFIRMED, payload)
-    print(f"[inventario] published {ROUTING_KEY_INVENTORY_CONFIRMED}: {payload}")
+    publish_event(ROUTING_KEY_INVENTORY_OUT_OF_STOCK, payload)
+    print(f"[inventario] published {ROUTING_KEY_INVENTORY_OUT_OF_STOCK}: {payload}")
 
 
 def run_inventory_service(mode: str = "run") -> None:
