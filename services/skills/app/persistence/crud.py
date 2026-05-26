@@ -19,7 +19,7 @@ def create_skill(db: Session, obj_in: SkillCreate) -> Skill:
     Returns:
         Objeto Skill creado
     """
-    db_obj = Skill(**obj_in.dict())
+    db_obj = Skill(**obj_in.model_dump())
     db.add(db_obj)
     db.commit()
     db.refresh(db_obj)
@@ -74,7 +74,7 @@ def update_skill(
     Returns:
         Objeto Skill actualizado
     """
-    update_data = obj_in.dict(exclude_unset=True)
+    update_data = obj_in.model_dump(exclude_unset=True)
     
     for field, value in update_data.items():
         setattr(db_obj, field, value)
