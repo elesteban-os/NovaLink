@@ -12,4 +12,3 @@ Ejecutar seeding en startup del servicio skills con comportamiento idempotente:
 - En startup: insertar solo skills faltantes.
 - Evitar duplicados por skill_name.
 - Mantener opcion de reset explicito solo en ejecucion manual del seeder.
-

@@ -10,7 +10,7 @@ import './styles/App.css';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null); // 'admin' o 'user'
-  const [currentUserId, setCurrentUserId] = useState(null); 
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   const handleLogin = (userData) => {
     setIsAuthenticated(true);

@@ -19,64 +19,64 @@ from typing import Any
 CURRENT_DIR = Path(__file__).resolve().parent
 ROOT_DIR = CURRENT_DIR.parent.parent
 if str(ROOT_DIR) not in sys.path:
-	sys.path.insert(0, str(ROOT_DIR))
+    sys.path.insert(0, str(ROOT_DIR))
 
 from shared.rabbitmq_api import ROUTING_KEY_ORDER_CREATED, publish_event
 
 
 def build_sample_order() -> dict[str, Any]:
-	"""Create the hardcoded order payload used to start the example flow.
+    """Create the hardcoded order payload used to start the example flow.
 
-	This is the only data the orders service produces in this example.
-	"""
+    This is the only data the orders service produces in this example.
+    """
 
-	return {
-		"pedido_id": 1001,
-		"cliente": "cliente_demo",
-		"producto": "teclado",
-		"cantidad": 2,
-		"total": 49.99,
-		"estado": "creado",
-	}
+    return {
+        "pedido_id": 1001,
+        "cliente": "cliente_demo",
+        "producto": "teclado",
+        "cantidad": 2,
+        "total": 49.99,
+        "estado": "creado",
+    }
 
 
 def publish_sample_order() -> None:
-	"""Publish the hardcoded order to the `pedido.creado` event."""
+    """Publish the hardcoded order to the `pedido.creado` event."""
 
-	payload = build_sample_order()
-	publish_event(ROUTING_KEY_ORDER_CREATED, payload)
-	print(f"[orders] published {ROUTING_KEY_ORDER_CREATED}: {payload}")
+    payload = build_sample_order()
+    publish_event(ROUTING_KEY_ORDER_CREATED, payload)
+    print(f"[orders] published {ROUTING_KEY_ORDER_CREATED}: {payload}")
 
 
 def run_orders_service() -> None:
-	"""Run the orders service workflow."""
+    """Run the orders service workflow."""
 
-	publish_sample_order()
+    publish_sample_order()
 
 
 def build_parser() -> argparse.ArgumentParser:
-	"""Build the command-line parser for the orders service."""
+    """Build the command-line parser for the orders service."""
 
-	parser = argparse.ArgumentParser(description="NovaLink order service example")
-	parser.add_argument(
-		"action",
-		nargs="?",
-		default="publish",
-		choices=["publish"],
-		help="Action to run. The order service only publishes the initial event.",
-	)
-	return parser
+    parser = argparse.ArgumentParser(description="NovaLink order service example")
+    parser.add_argument(
+        "action",
+        nargs="?",
+        default="publish",
+        choices=["publish"],
+        help="Action to run. The order service only publishes the initial event.",
+    )
+    return parser
 
 
 def main() -> None:
-	"""Run the orders service entrypoint."""
+    """Run the orders service entrypoint."""
 
-	parser = build_parser()
-	args = parser.parse_args()
+    parser = build_parser()
+    args = parser.parse_args()
 
-	if args.action == "publish":
-		run_orders_service()
+    if args.action == "publish":
+        run_orders_service()
 
 
 if __name__ == "__main__":
-	main()
+    main()

@@ -22,7 +22,9 @@ class AuthService:
             logger.warning("Login failed: invalid password")
             return None
 
-        expires_delta = datetime.timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+        expires_delta = datetime.timedelta(
+            minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+        )
         access_token = create_access_token(
             data={"sub": user.email, "user_id": user.id},
             expires_delta=expires_delta,

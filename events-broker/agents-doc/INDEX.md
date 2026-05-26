@@ -296,4 +296,3 @@ events-broker/agents-doc/
 ---
 
 **Última actualización:** 24 de mayo de 2026
-

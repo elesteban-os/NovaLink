@@ -25,7 +25,9 @@ router = APIRouter(tags=["orders"])
     summary="Crear nueva orden",
     responses={
         201: {"description": "Orden creada exitosamente"},
-        422: {"description": "Validación fallida: user_id > 0, quantity > 0, skill_name 1-255 chars"},
+        422: {
+            "description": "Validación fallida: user_id > 0, quantity > 0, skill_name 1-255 chars"
+        },
     },
 )
 def create_order(

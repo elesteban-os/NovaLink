@@ -19,9 +19,9 @@ function LoginForm({ onSubmit }) {
   return (
     <form className="login-form" onSubmit={handleSubmit}>
       <h2>Iniciar sesión</h2>
-      
+
       {error && <div className="error-message">{error}</div>}
-      
+
       <div className="form-group">
         <label htmlFor="email">Correo electrónico</label>
         <input

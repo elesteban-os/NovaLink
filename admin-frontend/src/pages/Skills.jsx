@@ -43,7 +43,7 @@ function Skills({ role, userId }) {
         alert("Cantidad no válida o excede el stock disponible.");
         return;
     }
-    
+
     try {
       // POST /orders
       const orderPayload = {
@@ -51,17 +51,17 @@ function Skills({ role, userId }) {
         skill_name: selectedSkill.skill_name || selectedSkill.name,
         quantity: purchaseQuantity
       };
-      
+
       const token = localStorage.getItem('token');
       const res = await fetch(`${ORDERS_API_URL}/orders`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(orderPayload)
       });
-      
+
       if (res.ok) {
         const orderData = await res.json();
         const skillName = selectedSkill.skill_name || selectedSkill.name;
@@ -69,7 +69,7 @@ function Skills({ role, userId }) {
         const userRes = await fetch(`${USERS_API_URL}/users/${userId}/skills/${encodeURIComponent(skillName)}?quantity=${purchaseQuantity}`, {
           method: 'POST',
         });
-        
+
         // Actualizamos el stock
         await fetch(`${SKILLS_API_URL}/skills/${selectedSkill.skill_id || selectedSkill.id}`, {
           method: 'PUT',
@@ -184,7 +184,7 @@ function Skills({ role, userId }) {
                 </span>
               </div>
               <p>Stock disponible: {skill.stock}</p>
-              
+
               <div className="skill-footer">
                 {role === 'user' ? (
                   <button className="btn-purchase" onClick={() => handlePurchaseClick(skill)}>Pedir</button>

@@ -89,7 +89,9 @@ def auth_token():
         response.raise_for_status()
         token = response.json().get("access_token")
         if not token:
-            pytest.skip(f"Auth login succeeded but response did not include access_token")
+            pytest.skip(
+                f"Auth login succeeded but response did not include access_token"
+            )
         return token
     except Exception as exc:
         pytest.skip(f"Auth token could not be obtained from {auth_login_url}: {exc}")

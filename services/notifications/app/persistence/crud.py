@@ -5,7 +5,9 @@ from .models import Notification
 from .schemas import NotificationCreate
 
 
-def create_notification(db: Session, notification_data: NotificationCreate) -> Notification:
+def create_notification(
+    db: Session, notification_data: NotificationCreate
+) -> Notification:
     """Persist a notification record and refresh it with generated fields."""
     db_notification = Notification(
         user_id=notification_data.user_id,

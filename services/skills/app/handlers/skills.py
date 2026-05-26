@@ -28,16 +28,13 @@ service = SkillService()
     summary="Crear skill",
     responses={
         400: {"description": "Datos inválidos"},
-        500: {"description": "Error interno"}
-    }
+        500: {"description": "Error interno"},
+    },
 )
-def create_skill(
-    obj_in: SkillCreate,
-    db: Session = Depends(get_db)
-):
+def create_skill(obj_in: SkillCreate, db: Session = Depends(get_db)):
     """
     Create a new skill.
-    
+
     - **skill_name**: Skill name (required)
     - **difficulty_level**: Difficulty between 0 and 10
     - **stock**: Available stock
@@ -46,28 +43,17 @@ def create_skill(
         return service.create_skill(db, obj_in)
     except ValueError as e:
         logger.error(f"Error validación: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         logger.exception(f"Error creando skill: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error interno del servidor"
+            detail="Error interno del servidor",
         )
 
 
-@router.get(
-    "",
-    response_model=List[SkillResponse],
-    summary="Listar skills"
-)
-def get_skills(
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db)
-):
+@router.get("", response_model=List[SkillResponse], summary="Listar skills")
+def get_skills(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """List skills with pagination."""
     try:
         return service.get_skills(db, skip=skip, limit=limit)
@@ -75,7 +61,7 @@ def get_skills(
         logger.exception(f"Error listando skills: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error interno del servidor"
+            detail="Error interno del servidor",
         )
 
 
@@ -83,28 +69,20 @@ def get_skills(
     "/{skill_id}",
     response_model=SkillResponse,
     summary="Obtener skill por ID",
-    responses={
-        404: {"description": "Skill no encontrado"}
-    }
+    responses={404: {"description": "Skill no encontrado"}},
 )
-def get_skill(
-    skill_id: int,
-    db: Session = Depends(get_db)
-):
+def get_skill(skill_id: int, db: Session = Depends(get_db)):
     """Get skill details by ID."""
     try:
         return service.get_skill(db, skill_id)
     except ValueError as e:
         logger.error(f"Error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         logger.exception(f"Error obteniendo skill: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error interno del servidor"
+            detail="Error interno del servidor",
         )
 
 
@@ -112,29 +90,20 @@ def get_skill(
     "/{skill_id}",
     response_model=SkillResponse,
     summary="Actualizar skill",
-    responses={
-        404: {"description": "Skill no encontrado"}
-    }
+    responses={404: {"description": "Skill no encontrado"}},
 )
-def update_skill(
-    skill_id: int,
-    obj_in: SkillUpdate,
-    db: Session = Depends(get_db)
-):
+def update_skill(skill_id: int, obj_in: SkillUpdate, db: Session = Depends(get_db)):
     """Update skill details."""
     try:
         return service.update_skill(db, skill_id, obj_in)
     except ValueError as e:
         logger.error(f"Error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         logger.exception(f"Error actualizando skill: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error interno del servidor"
+            detail="Error interno del servidor",
         )
 
 
@@ -142,14 +111,9 @@ def update_skill(
     "/{skill_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Eliminar skill",
-    responses={
-        404: {"description": "Skill no encontrado"}
-    }
+    responses={404: {"description": "Skill no encontrado"}},
 )
-def delete_skill(
-    skill_id: int,
-    db: Session = Depends(get_db)
-):
+def delete_skill(skill_id: int, db: Session = Depends(get_db)):
     """Delete skill by ID."""
     try:
         success = service.delete_skill(db, skill_id)
@@ -157,13 +121,10 @@ def delete_skill(
             raise ValueError(f"Skill {skill_id} no encontrado")
     except ValueError as e:
         logger.error(f"Error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         logger.exception(f"Error eliminando skill: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error interno del servidor"
+            detail="Error interno del servidor",
         )

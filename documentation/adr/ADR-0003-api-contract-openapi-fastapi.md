@@ -12,5 +12,3 @@ Estandarizar APIs con FastAPI, usando:
 - Validacion de payloads con Pydantic.
 - Documentacion OpenAPI automatica en /docs y /openapi.json.
 - Declaracion explicita de respuestas de error en endpoints criticos.
-
-

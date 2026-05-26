@@ -5,7 +5,9 @@ from tests.test_utils import log_assert_equal, log_info
 
 def test_create_notification_service(db_session):
     """Verifica que el servicio de notificaciones persiste el objeto y devuelve la entidad."""
-    log_info("[TEST] Ejecutando: test_create_notification_service -> crear notificación a través del servicio")
+    log_info(
+        "[TEST] Ejecutando: test_create_notification_service -> crear notificación a través del servicio"
+    )
     payload = NotificationCreate(
         user_id=1,
         order_id=10,
@@ -32,6 +34,7 @@ def test_create_notification_calls_email_send(monkeypatch, db_session):
         return {"status": "sent"}
 
     from app.services import notification_service
+
     monkeypatch.setattr(notification_service, "send_email", fake_send_email)
 
     payload = NotificationCreate(
@@ -43,4 +46,8 @@ def test_create_notification_calls_email_send(monkeypatch, db_session):
     created = create_notification(db_session, notification_data=payload)
 
     log_assert_equal(True, sent["called"], "send_email fue llamado")
-    log_assert_equal(created.id, sent["notification_id"], "send_email recibió la notificación correcta")
+    log_assert_equal(
+        created.id,
+        sent["notification_id"],
+        "send_email recibió la notificación correcta",
+    )

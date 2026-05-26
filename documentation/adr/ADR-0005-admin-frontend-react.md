@@ -12,4 +12,3 @@ Mantener un frontend en React (react-scripts) con:
 - react-router-dom para navegacion.
 - axios para comunicacion con APIs.
 - Build estatico servido por Nginx en contenedor.
-

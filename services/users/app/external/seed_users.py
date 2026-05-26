@@ -13,36 +13,38 @@ def seed_users() -> None:
             "last_name": "Pérez",
             "email": "juan.perez@admin.com",
             "password": "password123",
-            "skills": ["empatía", "liderazgo", "comunicación"]
+            "skills": ["empatía", "liderazgo", "comunicación"],
         },
         {
             "first_name": "Ana",
             "last_name": "García",
             "email": "ana.garcia@admin.com",
             "password": "password123",
-            "skills": ["creatividad", "colaboración", "adaptabilidad"]
+            "skills": ["creatividad", "colaboración", "adaptabilidad"],
         },
         {
             "first_name": "Carlos",
             "last_name": "López",
             "email": "carlos.lopez@user.com",
             "password": "password123",
-            "skills": ["resiliencia", "paciencia", "confianza"]
+            "skills": ["resiliencia", "paciencia", "confianza"],
         },
         {
             "first_name": "María",
             "last_name": "Rodríguez",
             "email": "maria.rodriguez@user.com",
             "password": "password123",
-            "skills": ["escucha activa", "iniciativa", "sagacidad"]
-        }
+            "skills": ["escucha activa", "iniciativa", "sagacidad"],
+        },
     ]
 
     db = SessionLocal()
     try:
         for user_data in users_data:
             if crud.get_user_by_email(db, user_data["email"]):
-                logger.info(f"El usuario {user_data['email']} ya existe. Omitiendo semilla.")
+                logger.info(
+                    f"El usuario {user_data['email']} ya existe. Omitiendo semilla."
+                )
                 continue
 
             user_create = UserCreate(
