@@ -11,6 +11,18 @@ cd services/orders
 docker-compose up -d
 ```
 
+## Requisitos de Python
+
+Este microservicio debe ejecutarse con Python 3.11.
+No uses Python 3.14 directamente porque `pydantic-core` y `psycopg2-binary` pueden fallar en compilación.
+
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\python.exe -m pip install --upgrade pip setuptools wheel
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
 ## Endpoints principales
 
 - `POST /orders` — Crear una nueva orden (body: `user_id`, `skill_name`, `quantity`).

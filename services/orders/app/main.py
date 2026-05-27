@@ -43,5 +43,4 @@ app.add_middleware(
 
 app.include_router(orders_router)
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# Database tables are created at startup via the lifespan context manager.
