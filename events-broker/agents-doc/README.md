@@ -427,4 +427,3 @@ pip install pika
 - Agregues nuevos eventos
 - Modifiques el API del broker
 - Descubras patrones de error comunes
-

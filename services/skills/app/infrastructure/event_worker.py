@@ -21,7 +21,9 @@ from app.services.skill_service import SkillService
 service = SkillService()
 
 
-def build_inventory_confirmation(order: dict[str, Any], success: bool, reason: str | None = None) -> dict[str, Any]:
+def build_inventory_confirmation(
+    order: dict[str, Any], success: bool, reason: str | None = None
+) -> dict[str, Any]:
     return {
         "pedido_id": order["pedido_id"],
         "user_id": order["user_id"],
@@ -34,14 +36,18 @@ def build_inventory_confirmation(order: dict[str, Any], success: bool, reason: s
 
 
 def handle_order_created(order: dict[str, Any]) -> None:
-    print(f"[inventario] received {ROUTING_KEY_ORDER_CREATED}: {json.dumps(order, ensure_ascii=False)}")
+    print(
+        f"[inventario] received {ROUTING_KEY_ORDER_CREATED}: {json.dumps(order, ensure_ascii=False)}"
+    )
 
     with SessionLocal() as db:
         try:
             service.reserve_stock(db, order["skill_name"], order["quantity"])
             payload = build_inventory_confirmation(order, True)
             publish_event(ROUTING_KEY_INVENTORY_CONFIRMED, payload)
-            print(f"[inventario] published {ROUTING_KEY_INVENTORY_CONFIRMED}: {payload}")
+            print(
+                f"[inventario] published {ROUTING_KEY_INVENTORY_CONFIRMED}: {payload}"
+            )
             return
         except ValueError as exc:
             payload = build_inventory_confirmation(order, False, str(exc))
@@ -52,10 +58,14 @@ def handle_order_created(order: dict[str, Any]) -> None:
 
 def run_inventory_service(mode: str = "run") -> None:
     if mode == "run":
-        consume_forever(QUEUE_INVENTORY, ROUTING_KEY_ORDER_CREATED, handle_order_created)
+        consume_forever(
+            QUEUE_INVENTORY, ROUTING_KEY_ORDER_CREATED, handle_order_created
+        )
         return
 
-    processed = consume_once(QUEUE_INVENTORY, ROUTING_KEY_ORDER_CREATED, handle_order_created)
+    processed = consume_once(
+        QUEUE_INVENTORY, ROUTING_KEY_ORDER_CREATED, handle_order_created
+    )
     if not processed:
         print(f"[inventario] no messages available in {QUEUE_INVENTORY}")
 

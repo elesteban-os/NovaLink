@@ -7,7 +7,7 @@ from ..database import Base
 
 class Notification(Base):
     """Database model representing a user notification."""
-    
+
     __tablename__ = "notifications"
 
     id = Column(Integer, primary_key=True, index=True)

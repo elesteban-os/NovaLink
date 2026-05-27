@@ -42,16 +42,17 @@ SKILLS = [
 def seed_skills(reset: bool = False) -> int:
     """
     Seed initial skills into the database.
-    
+
     Args:
         reset: If True, drop all skills before seeding
-        
+
     Returns:
         Number of skills created
     """
     if reset:
         logger.info("Eliminando todos los skills...")
         from app.database import Base
+
         Base.metadata.drop_all(bind=engine)
 
     created = 0
@@ -73,9 +74,9 @@ def seed_skills(reset: bool = False) -> int:
                 )
             )
             created += 1
-        
+
         if created > 0:
             db.commit()
             logger.info(f"Se sembraron {created} skills")
-    
+
     return created

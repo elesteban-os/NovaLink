@@ -42,4 +42,3 @@ SERVER_PORT=8005
 - Validaciones de formato y tipo se realizan con Pydantic. Las comprobaciones de existencia de usuario y disponibilidad de skill son responsabilidad del cliente o de capas superiores antes de crear la orden.
 
 **Última actualización:** 2026-05-24
-

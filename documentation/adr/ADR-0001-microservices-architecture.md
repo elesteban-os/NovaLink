@@ -15,5 +15,3 @@ Adoptar una arquitectura de microservicios con servicios independientes por domi
 - orders-api
 - notifications-api
 - admin-frontend
-
-

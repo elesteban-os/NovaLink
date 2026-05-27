@@ -3,7 +3,9 @@ from tests.test_utils import log_assert_equal, log_info
 
 def test_create_notification_endpoint(client):
     """Verifica que POST /notifications crea una notificación correctamente."""
-    log_info("[TEST] Ejecutando: test_create_notification_endpoint -> POST /notifications")
+    log_info(
+        "[TEST] Ejecutando: test_create_notification_endpoint -> POST /notifications"
+    )
     payload = {
         "user_id": 1,
         "order_id": 10,

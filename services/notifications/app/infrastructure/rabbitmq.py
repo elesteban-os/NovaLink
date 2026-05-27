@@ -9,7 +9,9 @@ from typing import Any, Callable
 try:
     import pika
 except ImportError as exc:  # pragma: no cover - friendly runtime error
-    raise SystemExit("Missing dependency: install pika with `pip install pika`." ) from exc
+    raise SystemExit(
+        "Missing dependency: install pika with `pip install pika`."
+    ) from exc
 
 try:
     from pika.exceptions import AMQPConnectionError
@@ -44,7 +46,9 @@ def build_connection_parameters() -> pika.ConnectionParameters:
     )
 
 
-def open_channel() -> tuple[pika.BlockingConnection, pika.adapters.blocking_connection.BlockingChannel]:
+def open_channel() -> (
+    tuple[pika.BlockingConnection, pika.adapters.blocking_connection.BlockingChannel]
+):
     try:
         connection = pika.BlockingConnection(build_connection_parameters())
         return connection, connection.channel()
@@ -56,8 +60,12 @@ def open_channel() -> tuple[pika.BlockingConnection, pika.adapters.blocking_conn
         ) from exc
 
 
-def declare_event_topology(channel: pika.adapters.blocking_connection.BlockingChannel) -> None:
-    channel.exchange_declare(exchange=EXCHANGE_NAME, exchange_type="direct", durable=True)
+def declare_event_topology(
+    channel: pika.adapters.blocking_connection.BlockingChannel,
+) -> None:
+    channel.exchange_declare(
+        exchange=EXCHANGE_NAME, exchange_type="direct", durable=True
+    )
 
 
 def declare_service_queue(
@@ -67,7 +75,9 @@ def declare_service_queue(
 ) -> None:
     declare_event_topology(channel)
     channel.queue_declare(queue=queue_name, durable=True)
-    channel.queue_bind(exchange=EXCHANGE_NAME, queue=queue_name, routing_key=routing_key)
+    channel.queue_bind(
+        exchange=EXCHANGE_NAME, queue=queue_name, routing_key=routing_key
+    )
 
 
 def publish_event(routing_key: str, payload: dict[str, Any]) -> None:
@@ -111,7 +121,9 @@ def consume_forever(
             _channel.basic_ack(delivery_tag=method.delivery_tag)
 
         channel.basic_qos(prefetch_count=1)
-        channel.basic_consume(queue=queue_name, on_message_callback=on_message, auto_ack=False)
+        channel.basic_consume(
+            queue=queue_name, on_message_callback=on_message, auto_ack=False
+        )
         print(f"[rabbitmq] waiting for {routing_key} on queue {queue_name}")
         channel.start_consuming()
     finally:

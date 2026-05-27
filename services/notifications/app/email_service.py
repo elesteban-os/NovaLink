@@ -14,9 +14,9 @@ def send_email(notification: Notification) -> dict:
     Simula envío de notificación imprimiendo en consola/logs.
     Retorna diccionario con detalles del envío simulado.
     """
-    
+
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
+
     # Crear mensaje de email formateado
     email_body = f"""
 ╔════════════════════════════════════════════════════════════╗
@@ -42,15 +42,17 @@ Este es un envio simulado para fines de desarrollo.
 En produccion se utilizaria un servicio de email real.
 ════════════════════════════════════════════════════════════
 """
-    
+
     # Log the simulated email send event
-    logger.info(f"Sending notification email - Notification ID: {notification.id}, User ID: {notification.user_id}")
+    logger.info(
+        f"Sending notification email - Notification ID: {notification.id}, User ID: {notification.user_id}"
+    )
     logger.info(f"Subject: {notification.title}")
     logger.info(f"Description: {notification.description}")
-    
+
     # Print email body to console for development visibility
     print(email_body)
-    
+
     return {
         "status": "sent",
         "notification_id": notification.id,
@@ -58,6 +60,5 @@ En produccion se utilizaria un servicio de email real.
         "order_id": notification.order_id,
         "title": notification.title,
         "timestamp": timestamp,
-        "simulated": True
+        "simulated": True,
     }
-

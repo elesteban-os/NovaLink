@@ -13,7 +13,9 @@ def verify_token(request: Request) -> int:
 
     token = auth_header.split(" ")[1]
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         user_id = payload.get("user_id")
         if user_id is None:
             raise HTTPException(

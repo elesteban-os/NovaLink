@@ -21,26 +21,26 @@ from app.external.seed_skills import seed_skills
 async def lifespan(app: FastAPI):
     """
     Handle application startup and shutdown.
-    
+
     - Create database tables
     - Seed initial data
     - Cleanup on shutdown
     """
     logger.info(f"Starting {settings.API_TITLE}")
-    
+
     # Create tables
     Base.metadata.create_all(bind=engine)
     logger.info("Database tables created/verified")
-    
+
     # Seed initial data
     try:
         seed_skills(reset=False)
         logger.info("Datos iniciales de skills sembrados")
     except Exception as e:
         logger.warning(f"Could not seed skills: {e}")
-    
+
     yield
-    
+
     logger.info("Shutting down application")
 
 
@@ -49,7 +49,7 @@ app = FastAPI(
     title=settings.API_TITLE,
     description=settings.API_DESCRIPTION,
     version=settings.API_VERSION,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Configure CORS
@@ -64,6 +64,7 @@ app.add_middleware(
 # Include routers
 app.include_router(skills.router)
 
+
 # Health check
 @app.get("/health", tags=["health"])
 def health_check():
@@ -71,8 +72,9 @@ def health_check():
     return {
         "status": "ok",
         "service": settings.API_TITLE,
-        "version": settings.API_VERSION
+        "version": settings.API_VERSION,
     }
+
 
 # Root
 @app.get("/", tags=["info"])
@@ -81,5 +83,5 @@ def root():
     return {
         "service": settings.API_TITLE,
         "version": settings.API_VERSION,
-        "docs": "/docs"
+        "docs": "/docs",
     }

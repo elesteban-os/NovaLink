@@ -21,10 +21,7 @@ os.environ.setdefault("JWT_SECRET", "SUPER_SECRET_KEY")
 os.environ.setdefault("JWT_ALGORITHM", "HS256")
 os.environ.setdefault("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30")
 
-TEST_DATABASE_URL = os.getenv(
-    "TEST_DATABASE_URL",
-    f"sqlite:///./test_auth.db"
-)
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", f"sqlite:///./test_auth.db")
 
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 
@@ -98,13 +95,11 @@ def test_user(db_session):
     """Create a test user for authentication tests."""
     db = TestingSessionLocal()
     try:
-        from app.persistence.models import User
-        
         test_user = User(
             email="test@example.com",
             first_name="Test",
             last_name="User",
-            hashed_password=get_password_hash("testpassword123")
+            hashed_password=get_password_hash("testpassword123"),
         )
         db.add(test_user)
         db.commit()

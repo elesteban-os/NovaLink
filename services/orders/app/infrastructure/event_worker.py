@@ -27,10 +27,18 @@ def handle_inventory_out_of_stock(event: dict[str, Any]) -> None:
 
 def run_orders_service(mode: str = "run") -> None:
     if mode == "run":
-        consume_forever(QUEUE_INVENTORY_OUT_OF_STOCK, ROUTING_KEY_INVENTORY_OUT_OF_STOCK, handle_inventory_out_of_stock)
+        consume_forever(
+            QUEUE_INVENTORY_OUT_OF_STOCK,
+            ROUTING_KEY_INVENTORY_OUT_OF_STOCK,
+            handle_inventory_out_of_stock,
+        )
         return
 
-    processed = consume_once(QUEUE_INVENTORY_OUT_OF_STOCK, ROUTING_KEY_INVENTORY_OUT_OF_STOCK, handle_inventory_out_of_stock)
+    processed = consume_once(
+        QUEUE_INVENTORY_OUT_OF_STOCK,
+        ROUTING_KEY_INVENTORY_OUT_OF_STOCK,
+        handle_inventory_out_of_stock,
+    )
     if not processed:
         print(f"[orders] no messages available in {QUEUE_INVENTORY_OUT_OF_STOCK}")
 

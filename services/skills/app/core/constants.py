@@ -3,6 +3,7 @@ from enum import Enum
 
 class SkillDifficulty(int, Enum):
     """Niveles de dificultad de skills."""
+
     TRIVIAL = 0
     VERY_EASY = 1
     EASY = 2

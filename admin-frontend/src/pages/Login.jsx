@@ -21,15 +21,15 @@ function Login({ onLogin }) {
       });
 
       if (res.ok) {
-        const data = await res.json(); 
-        
+        const data = await res.json();
+
         if (data.access_token) {
           localStorage.setItem('token', data.access_token);
           const payload = JSON.parse(atob(data.access_token.split('.')[1]));
           const email = credentials.email.toLowerCase();
-          let role = 'user'; 
+          let role = 'user';
           let userId = payload.user_id;
-          
+
           if (email.includes('@admin')) {
             role = 'admin';
           }

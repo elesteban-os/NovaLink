@@ -20,10 +20,7 @@ os.environ.setdefault("DB_ECHO", "false")
 os.environ.setdefault("JWT_SECRET", "SUPER_SECRET_KEY")
 os.environ.setdefault("JWT_ALGORITHM", "HS256")
 
-TEST_DATABASE_URL = os.getenv(
-    "TEST_DATABASE_URL",
-    f"sqlite:///./test_users.db"
-)
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", f"sqlite:///./test_users.db")
 
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 

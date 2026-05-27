@@ -16,4 +16,3 @@ En Kubernetes:
 - Cada API y cada DB se despliega con su Deployment.
 - Se exponen APIs por Services tipo LoadBalancer en puertos de desarrollo.
 - Se usan PVC para persistencia de PostgreSQL.
-

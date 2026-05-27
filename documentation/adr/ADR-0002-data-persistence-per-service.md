@@ -16,4 +16,3 @@ Aplicar el patron "database per service":
 - notifications-api usa su propia base PostgreSQL.
 
 En Kubernetes se utilizan Deployments de PostgreSQL separados y PVC por dominio.
-

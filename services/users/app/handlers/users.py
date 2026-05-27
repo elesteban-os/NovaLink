@@ -34,11 +34,16 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)) -> UserResponse
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
     except Exception as exc:
         logger.error(f"Unexpected error creating user: {exc}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error",
+        )
 
 
 @router.get("/", response_model=List[UserResponse], status_code=status.HTTP_200_OK)
-def list_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> List[UserResponse]:
+def list_users(
+    skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
+) -> List[UserResponse]:
     return user_service.get_users(db, skip=skip, limit=limit)
 
 
@@ -52,7 +57,9 @@ def read_user(user_id: int, db: Session = Depends(get_db)) -> UserResponse:
 
 
 @router.put("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
-def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_db)) -> UserResponse:
+def update_user(
+    user_id: int, user_update: UserUpdate, db: Session = Depends(get_db)
+) -> UserResponse:
     try:
         return user_service.update_user(db, user_id, user_update)
     except ValueError as exc:
@@ -60,7 +67,10 @@ def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
     except Exception as exc:
         logger.error(f"Unexpected error updating user: {exc}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error",
+        )
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -72,8 +82,14 @@ def delete_user(user_id: int, db: Session = Depends(get_db)) -> None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
 
 
-@router.post("/{user_id}/skills", response_model=UserSkillResponse, status_code=status.HTTP_201_CREATED)
-def add_user_skill(user_id: int, skill_data: UserSkillCreate, db: Session = Depends(get_db)) -> UserSkillResponse:
+@router.post(
+    "/{user_id}/skills",
+    response_model=UserSkillResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def add_user_skill(
+    user_id: int, skill_data: UserSkillCreate, db: Session = Depends(get_db)
+) -> UserSkillResponse:
     try:
         return user_service.add_user_skill(db, user_id, skill_data)
     except ValueError as exc:
@@ -81,11 +97,20 @@ def add_user_skill(user_id: int, skill_data: UserSkillCreate, db: Session = Depe
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
     except Exception as exc:
         logger.error(f"Unexpected error adding skill: {exc}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error",
+        )
 
 
-@router.get("/{user_id}/skills", response_model=List[UserSkillResponse], status_code=status.HTTP_200_OK)
-def list_user_skills(user_id: int, db: Session = Depends(get_db)) -> List[UserSkillResponse]:
+@router.get(
+    "/{user_id}/skills",
+    response_model=List[UserSkillResponse],
+    status_code=status.HTTP_200_OK,
+)
+def list_user_skills(
+    user_id: int, db: Session = Depends(get_db)
+) -> List[UserSkillResponse]:
     try:
         return user_service.get_user_skills(db, user_id)
     except ValueError as exc:
@@ -94,7 +119,9 @@ def list_user_skills(user_id: int, db: Session = Depends(get_db)) -> List[UserSk
 
 
 @router.delete("/{user_id}/skills/{skill_name}", status_code=status.HTTP_204_NO_CONTENT)
-def remove_user_skill(user_id: int, skill_name: str, db: Session = Depends(get_db)) -> None:
+def remove_user_skill(
+    user_id: int, skill_name: str, db: Session = Depends(get_db)
+) -> None:
     try:
         user_service.remove_user_skill(db, user_id, skill_name)
     except ValueError as exc:

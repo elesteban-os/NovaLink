@@ -27,7 +27,9 @@ class UserService:
 
     def create_user(self, db: Session, user_data: UserCreate) -> User:
         if crud.get_user_by_email(db, user_data.email):
-            logger.warning(f"Attempt to create user with existing email: {user_data.email}")
+            logger.warning(
+                f"Attempt to create user with existing email: {user_data.email}"
+            )
             raise ValueError("Email already registered")
 
         user = crud.create_user(db, user_data)
@@ -59,7 +61,9 @@ class UserService:
             raise ValueError("User not found")
         logger.info(f"User deactivated successfully: {user_id}")
 
-    def add_user_skill(self, db: Session, user_id: int, skill_data: UserSkillCreate) -> UserSkill:
+    def add_user_skill(
+        self, db: Session, user_id: int, skill_data: UserSkillCreate
+    ) -> UserSkill:
         user = crud.get_user(db, user_id)
         if not user:
             logger.warning(f"Attempt to add skill to non-existent user: {user_id}")
