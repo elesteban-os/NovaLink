@@ -68,9 +68,9 @@ spec:
     spec:
       containers:
       - name: api
-        image: notifications-api:latest
+        image: notifications-api:v2.0
         imagePullPolicy: IfNotPresent
-        command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8004"]
+        command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8004"]
         env:
         - name: DB_USER
           value: "novalink_user"
@@ -88,6 +88,16 @@ spec:
           value: "0.0.0.0"
         - name: SERVER_PORT
           value: "8004"
+        - name: RABBITMQ_HOST
+          value: "novalink-rabbitmq"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USER
+          value: "guest"
+        - name: RABBITMQ_PASSWORD
+          value: "guest"
+        - name: RABBITMQ_VHOST
+          value: "/"
         ports:
         - containerPort: 8004
 ---
@@ -102,3 +112,45 @@ spec:
   ports:
   - port: 8004
     targetPort: 8004
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifications-worker
+spec:
+  selector:
+    matchLabels:
+      app: notifications-worker
+  template:
+    metadata:
+      labels:
+        app: notifications-worker
+    spec:
+      containers:
+      - name: worker
+        image: notifications-api:v2.0
+        imagePullPolicy: IfNotPresent
+        command: ["python", "-m", "app.infrastructure.event_worker", "run"]
+        env:
+        - name: DB_USER
+          value: "novalink_user"
+        - name: DB_PASSWORD
+          value: "novalink_password"
+        - name: DB_HOST
+          value: "postgres-notifications"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          value: "notifications_db"
+        - name: DB_ECHO
+          value: "false"
+        - name: RABBITMQ_HOST
+          value: "novalink-rabbitmq"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USER
+          value: "guest"
+        - name: RABBITMQ_PASSWORD
+          value: "guest"
+        - name: RABBITMQ_VHOST
+          value: "/"

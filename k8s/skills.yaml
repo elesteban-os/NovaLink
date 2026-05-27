@@ -68,18 +68,32 @@ spec:
     spec:
       containers:
       - name: api
-        image: skills-api:latest
+        image: skills-api:v2.0
         imagePullPolicy: IfNotPresent
         command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
         env:
-        - name: POSTGRES_USER
+        - name: DB_USER
           value: "user"
-        - name: POSTGRES_PASSWORD
+        - name: DB_PASSWORD
           value: "password"
-        - name: POSTGRES_DB
+        - name: DB_HOST
+          value: "skills-db"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
           value: "mydb"
         - name: DATABASE_URL
           value: "postgresql://user:password@skills-db:5432/mydb"
+        - name: RABBITMQ_HOST
+          value: "novalink-rabbitmq"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USER
+          value: "guest"
+        - name: RABBITMQ_PASSWORD
+          value: "guest"
+        - name: RABBITMQ_VHOST
+          value: "/"
         ports:
         - containerPort: 8000
 ---
@@ -94,3 +108,45 @@ spec:
   ports:
   - port: 8001
     targetPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skills-worker
+spec:
+  selector:
+    matchLabels:
+      app: skills-worker
+  template:
+    metadata:
+      labels:
+        app: skills-worker
+    spec:
+      containers:
+      - name: worker
+        image: skills-api:v2.0
+        imagePullPolicy: IfNotPresent
+        command: ["python", "-m", "app.infrastructure.event_worker", "run"]
+        env:
+        - name: DB_USER
+          value: "user"
+        - name: DB_PASSWORD
+          value: "password"
+        - name: DB_HOST
+          value: "skills-db"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          value: "mydb"
+        - name: DATABASE_URL
+          value: "postgresql://user:password@skills-db:5432/mydb"
+        - name: RABBITMQ_HOST
+          value: "novalink-rabbitmq"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USER
+          value: "guest"
+        - name: RABBITMQ_PASSWORD
+          value: "guest"
+        - name: RABBITMQ_VHOST
+          value: "/"

@@ -14,10 +14,10 @@ spec:
     spec:
       containers:
       - name: auth
-        image: auth-service:latest
+        image: auth-service:v2.0
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 80
+        - containerPort: 8000
         env:
         - name: POSTGRES_USER
           value: "users_user"
@@ -44,4 +44,4 @@ spec:
   ports:
     - protocol: TCP
       port: 8006
-      targetPort: 80
+      targetPort: 8000

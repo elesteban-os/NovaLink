@@ -68,9 +68,9 @@ spec:
     spec:
       containers:
       - name: api
-        image: orders-api:latest
+        image: orders-api:v2.0
         imagePullPolicy: IfNotPresent
-        command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8005"]
+        command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8005"]
         env:
         - name: DB_USER
           value: "orders_user"
@@ -84,6 +84,16 @@ spec:
           value: "orders_db"
         - name: DB_ECHO
           value: "false"
+        - name: RABBITMQ_HOST
+          value: "novalink-rabbitmq"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USER
+          value: "guest"
+        - name: RABBITMQ_PASSWORD
+          value: "guest"
+        - name: RABBITMQ_VHOST
+          value: "/"
         ports:
         - containerPort: 8005
 ---

@@ -68,17 +68,31 @@ spec:
     spec:
       containers:
       - name: api
-        image: users-api:latest
+        image: users-api:v2.0
         imagePullPolicy: IfNotPresent # Como usarás Docker Desktop, esto toma la imagen construida localmente
         env:
-        - name: POSTGRES_USER
+        - name: DB_USER
           value: "users_user"
-        - name: POSTGRES_PASSWORD
+        - name: DB_PASSWORD
           value: "users_pass"
-        - name: POSTGRES_DB
+        - name: DB_NAME
           value: "users_db"
-        - name: POSTGRES_HOST
+        - name: DB_HOST
           value: "users-db" # Nombre exacto del Service de K8s creado arriba
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_ECHO
+          value: "false"
+        - name: RABBITMQ_HOST
+          value: "novalink-rabbitmq"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USER
+          value: "guest"
+        - name: RABBITMQ_PASSWORD
+          value: "guest"
+        - name: RABBITMQ_VHOST
+          value: "/"
         ports:
         - containerPort: 8000
 ---
@@ -93,3 +107,45 @@ spec:
   ports:
   - port: 8002
     targetPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-worker
+spec:
+  selector:
+    matchLabels:
+      app: users-worker
+  template:
+    metadata:
+      labels:
+        app: users-worker
+    spec:
+      containers:
+      - name: worker
+        image: users-api:v2.0
+        imagePullPolicy: IfNotPresent
+        command: ["python", "-m", "app.infrastructure.event_worker", "run"]
+        env:
+        - name: DB_USER
+          value: "users_user"
+        - name: DB_PASSWORD
+          value: "users_pass"
+        - name: DB_NAME
+          value: "users_db"
+        - name: DB_HOST
+          value: "users-db"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_ECHO
+          value: "false"
+        - name: RABBITMQ_HOST
+          value: "novalink-rabbitmq"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USER
+          value: "guest"
+        - name: RABBITMQ_PASSWORD
+          value: "guest"
+        - name: RABBITMQ_VHOST
+          value: "/"
