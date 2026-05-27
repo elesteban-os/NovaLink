@@ -25,9 +25,24 @@ ROUTING_KEY_ORDER_CREATED = "pedido.creado"
 ROUTING_KEY_INVENTORY_CONFIRMED = "inventario.confirmado"
 ROUTING_KEY_USER_UPDATED = "usuario.actualizado"
 
+ROUTING_KEY_SKILLS_LIST = "skills.listar"
+ROUTING_KEY_USER_CREATE = "usuario.creado"
+ROUTING_KEY_USERS_LIST = "usuarios.listar"
+ROUTING_KEY_USER_SKILLS_LIST = "usuarios.skills.listar"
+ROUTING_KEY_NOTIFY_CREATE = "notificaciones.crear"
+
+ROUTING_KEY_GATEWAY_RESPONSE_SKILLS = "gateway.respuesta.skills"
+ROUTING_KEY_GATEWAY_RESPONSE_USERS = "gateway.respuesta.users"
+ROUTING_KEY_GATEWAY_RESPONSE_NOTIFICATIONS = "gateway.respuesta.notifications"
+ROUTING_KEY_GATEWAY_RESPONSE_SKILLS_LIST = "gateway.respuesta.skills.list"
+ROUTING_KEY_GATEWAY_RESPONSE_USERS_LIST = "gateway.respuesta.users.list"
+ROUTING_KEY_GATEWAY_RESPONSE_USERS_SKILLS = "gateway.respuesta.users.skills"
+ROUTING_KEY_GATEWAY_RESPONSE_NOTIFICATIONS_LIST = "gateway.respuesta.notifications.list"
+
 QUEUE_INVENTORY = "inventario.pedido.creado"
 QUEUE_USERS = "usuarios.inventario.confirmado"
 QUEUE_NOTIFICATIONS = "notificaciones.usuario.actualizado"
+QUEUE_GATEWAY_RESPONSES = "gateway.responses"
 
 MessageHandler = Callable[[dict[str, Any]], None]
 

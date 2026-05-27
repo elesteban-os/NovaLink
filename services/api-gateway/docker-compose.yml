@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  api_gateway:
+    build: .
+    container_name: novalink_api_gateway
+    ports:
+      - "8000:8000"
+    environment:
+      RABBITMQ_HOST: novalink-rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      RABBITMQ_VHOST: /
+    networks:
+      - novalink_network
+
+networks:
+  novalink_network:
+    external: true

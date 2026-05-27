@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  admin-frontend:
+    build:
+      context: .
+      dockerfile: dockerfile
+    image: novalink-admin-frontend
+    ports:
+      - "3000:80"
+    restart: unless-stopped

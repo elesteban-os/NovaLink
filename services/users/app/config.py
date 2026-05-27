@@ -12,6 +12,13 @@ class Settings(BaseSettings):
     DB_PORT: int = Field(5432, env="DB_PORT")
     DB_NAME: str = Field(..., env="DB_NAME")
     DB_ECHO: bool = Field(False, env="DB_ECHO")
+
+    # ===== RABBITMQ =====
+    RABBITMQ_HOST: str = Field("novalink-rabbitmq", env="RABBITMQ_HOST")
+    RABBITMQ_PORT: int = Field(5672, env="RABBITMQ_PORT")
+    RABBITMQ_USER: str = Field("guest", env="RABBITMQ_USER")
+    RABBITMQ_PASSWORD: str = Field("guest", env="RABBITMQ_PASSWORD")
+    RABBITMQ_VHOST: str = Field("/", env="RABBITMQ_VHOST")
     
     # ===== API =====
     API_TITLE: str = Field("Users Microservice", env="API_TITLE")
@@ -25,6 +32,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
     )
     
     @property

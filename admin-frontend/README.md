@@ -61,7 +61,7 @@ admin-frontend/
    ```
 
 4. **Accede a la aplicación:**
-   Abre [http://localhost:3001](http://localhost:3001) en tu navegador.
+   Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
 ## Login
 
@@ -113,9 +113,13 @@ Empatía, Liderazgo, Comunicación Asertiva, Escucha Activa, Creatividad, Resili
 
 ## Variables de Entorno
 
+El frontend debe apuntar al API Gateway en lugar de consumir los servicios backend directamente.
+
 ```env
-REACT_APP_API_URL=http://localhost:3001/api
+REACT_APP_API_URL=http://localhost:8000/api/gateway
 ```
+
+Si ejecutas el frontend desde Docker, establece la variable de entorno en el contenedor o en un archivo `.env`.
 
 ## Build para Producción
 

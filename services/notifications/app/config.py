@@ -13,6 +13,13 @@ class Settings(BaseSettings):
     DB_NAME: str
     DB_ECHO: bool = False
 
+    # ===== RABBITMQ =====
+    RABBITMQ_HOST: str = "novalink-rabbitmq"
+    RABBITMQ_PORT: int = 5672
+    RABBITMQ_USER: str = "guest"
+    RABBITMQ_PASSWORD: str = "guest"
+    RABBITMQ_VHOST: str = "/"
+
     EMAIL_HOST: str = "localhost"
     EMAIL_PORT: int = 25
     EMAIL_USER: str | None = None
@@ -21,6 +28,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
     )
 
     @property

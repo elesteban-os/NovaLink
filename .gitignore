@@ -1,4 +1,3 @@
-.env
 # Python
 __pycache__/
 *.py[cod]
@@ -43,3 +42,4 @@ yarn-error.log*
 services/agent-guides/
 wheels/
 services/agent-guides/
+node_modules/

@@ -14,17 +14,15 @@ services:
 
   auth_api:
     build: .
-    env_file:
-      - .env
     ports:
       - "8007:8000"
     depends_on:
       - postgres_auth
     environment:
-      POSTGRES_HOST: postgres_auth
-      POSTGRES_DB: auth_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: postgres_users
+      POSTGRES_DB: users_db
+      POSTGRES_USER: novalink
+      POSTGRES_PASSWORD: novalinkpwd
     networks:
       - novalink_network
 

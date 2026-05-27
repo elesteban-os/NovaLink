@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Users.css';
-
-const API_URL = 'http://localhost:8002'; 
+import gateway from '../api/gatewayClient';
 
 function Users() {
   const [users, setUsers] = useState([]);
@@ -11,12 +10,11 @@ function Users() {
 
   const fetchUsers = async () => {
     try {
-      // GET /users
-      const res = await fetch(`${API_URL}/users`);
-      if (res.ok) {
-        const data = await res.json();
-        setUsers(data);
-      }
+      // Request users via API Gateway (usuarios.listar)
+      const res = await gateway.requestAndWait('usuarios.listar', {});
+      const payload = res?.payload || {};
+      const result = payload.result || payload?.result || [];
+      setUsers(result);
     } catch (error) {
       console.error("Error obteniendo usuarios", error);
     }
@@ -47,21 +45,19 @@ function Users() {
           body: JSON.stringify(payload)
         });
       } else {
-        // POST /users - Como es email decidimos el role internamente
-        const finalEmail = formData.email.includes('@') 
-            ? formData.email 
-            : `${formData.email}@${formData.role}.com`;
-            
-        await fetch(`${API_URL}/users`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            email: formData.email, // Suponiendo input completo por ahora
-            password: formData.password
-          })
-        });
+        // Create user via API Gateway event 'usuario.creado'
+        const userPayload = {
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email,
+          password: formData.password,
+        };
+        try {
+          const res = await gateway.requestAndWait('usuario.creado', userPayload);
+          // Optionally inspect res.payload.result for created user
+        } catch (err) {
+          console.error('Error creando usuario via gateway', err);
+        }
       }
       fetchUsers();
       setFormData({ first_name: '', last_name: '', email: '', role: 'user', password: '' });

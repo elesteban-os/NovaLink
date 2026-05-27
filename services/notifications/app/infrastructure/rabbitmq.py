@@ -17,15 +17,15 @@ except ImportError:  # pragma: no cover - fallback for older pika layouts
     AMQPConnectionError = Exception
 
 EXCHANGE_NAME = "novalink.events"
-ROUTING_KEY_ORDER_CREATED = "pedido.creado"
-ROUTING_KEY_INVENTORY_CONFIRMED = "inventario.confirmado"
 ROUTING_KEY_USER_UPDATED = "usuario.actualizado"
+ROUTING_KEY_NOTIFY_CREATE = "notificaciones.crear"
+ROUTING_KEY_NOTIFICATIONS_LIST = "notificaciones.listar"
+ROUTING_KEY_GATEWAY_RESPONSE_NOTIFICATIONS = "gateway.respuesta.notifications"
+ROUTING_KEY_GATEWAY_RESPONSE_NOTIFICATIONS_LIST = "gateway.respuesta.notifications.list"
 
-QUEUE_INVENTORY = "inventario.pedido.creado"
-QUEUE_USERS = "usuarios.inventario.confirmado"
 QUEUE_NOTIFICATIONS = "notificaciones.usuario.actualizado"
 
-MessageHandler = Callable[[dict[str, Any]], None]
+MessageHandler = Callable[[dict[str, Any], str], None]
 
 
 def build_connection_parameters() -> pika.ConnectionParameters:
@@ -63,11 +63,14 @@ def declare_event_topology(channel: pika.adapters.blocking_connection.BlockingCh
 def declare_service_queue(
     channel: pika.adapters.blocking_connection.BlockingChannel,
     queue_name: str,
-    routing_key: str,
+    routing_keys: str | list[str],
 ) -> None:
     declare_event_topology(channel)
     channel.queue_declare(queue=queue_name, durable=True)
-    channel.queue_bind(exchange=EXCHANGE_NAME, queue=queue_name, routing_key=routing_key)
+    if isinstance(routing_keys, str):
+        routing_keys = [routing_keys]
+    for routing_key in routing_keys:
+        channel.queue_bind(exchange=EXCHANGE_NAME, queue=queue_name, routing_key=routing_key)
 
 
 def publish_event(routing_key: str, payload: dict[str, Any]) -> None:
@@ -93,12 +96,12 @@ def decode_json_message(body: bytes) -> dict[str, Any]:
 
 def consume_forever(
     queue_name: str,
-    routing_key: str,
+    routing_keys: str | list[str],
     handler: MessageHandler,
 ) -> None:
     connection, channel = open_channel()
     try:
-        declare_service_queue(channel, queue_name, routing_key)
+        declare_service_queue(channel, queue_name, routing_keys)
 
         def on_message(
             _channel: pika.adapters.blocking_connection.BlockingChannel,
@@ -107,12 +110,13 @@ def consume_forever(
             body: bytes,
         ) -> None:
             payload = decode_json_message(body)
-            handler(payload)
+            print(f"[rabbitmq] received {method.routing_key} on queue {queue_name}: {payload}")
+            handler(payload, method.routing_key)
             _channel.basic_ack(delivery_tag=method.delivery_tag)
 
         channel.basic_qos(prefetch_count=1)
         channel.basic_consume(queue=queue_name, on_message_callback=on_message, auto_ack=False)
-        print(f"[rabbitmq] waiting for {routing_key} on queue {queue_name}")
+        print(f"[rabbitmq] waiting for {routing_keys} on queue {queue_name}")
         channel.start_consuming()
     finally:
         connection.close()
@@ -120,18 +124,19 @@ def consume_forever(
 
 def consume_once(
     queue_name: str,
-    routing_key: str,
+    routing_keys: str | list[str],
     handler: MessageHandler,
 ) -> bool:
     connection, channel = open_channel()
     try:
-        declare_service_queue(channel, queue_name, routing_key)
+        declare_service_queue(channel, queue_name, routing_keys)
         method, _properties, body = channel.basic_get(queue=queue_name, auto_ack=False)
         if method is None:
             return False
 
         payload = decode_json_message(body)
-        handler(payload)
+        print(f"[rabbitmq] received {routing_keys} on queue {queue_name}: {payload}")
+        handler(payload, method.routing_key)
         channel.basic_ack(delivery_tag=method.delivery_tag)
         return True
     finally:

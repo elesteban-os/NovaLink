@@ -109,6 +109,7 @@ def consume_forever(
             body: bytes,
         ) -> None:
             payload = decode_json_message(body)
+            print(f"[rabbitmq] received {routing_key} on queue {queue_name}: {payload}")
             handler(payload)
             _channel.basic_ack(delivery_tag=method.delivery_tag)
 
@@ -133,6 +134,7 @@ def consume_once(
             return False
 
         payload = decode_json_message(body)
+        print(f"[rabbitmq] received {routing_key} on queue {queue_name}: {payload}")
         handler(payload)
         channel.basic_ack(delivery_tag=method.delivery_tag)
         return True

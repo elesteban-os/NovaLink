@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Skills.css';
+import gateway from '../api/gatewayClient';
 
-const SKILLS_API_URL = 'http://localhost:8001';
 const USERS_API_URL = 'http://localhost:8002';
 const NOTIFICATIONS_API_URL = 'http://localhost:8004';
 const ORDERS_API_URL = 'http://localhost:8005';
@@ -16,12 +16,11 @@ function Skills({ role, userId }) {
 
   const fetchSkills = async () => {
     try {
-      // GET /skills
-      const res = await fetch(`${SKILLS_API_URL}/skills`);
-      if (res.ok) {
-        const data = await res.json();
-        setSkills(data);
-      }
+      // Request skills via API Gateway (skills.listar)
+      const res = await gateway.requestAndWait('skills.listar', {});
+      const payload = res?.payload || {};
+      const result = payload.result || payload?.result || [];
+      setSkills(result);
     } catch (error) {
       console.error("Error obteniendo habilidades:", error);
     }

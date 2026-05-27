@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import LoginForm from '../components/LoginForm';
 import './Login.css';
 
-const AUTH_API_URL = 'http://localhost:8006'; // API de Auth
+const AUTH_API_URL = 'http://localhost:8007'; // API de Auth
 
 function Login({ onLogin }) {
   const [loginError, setLoginError] = useState('');

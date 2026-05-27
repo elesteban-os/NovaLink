@@ -1,5 +1,3 @@
-"""RabbitMQ helper for the Users microservice."""
-
 from __future__ import annotations
 
 import json
@@ -8,28 +6,31 @@ from typing import Any, Callable
 
 try:
     import pika
-except ImportError as exc:  # pragma: no cover - friendly runtime error
+except ImportError as exc:
     raise SystemExit("Missing dependency: install pika with `pip install pika`." ) from exc
 
 try:
     from pika.exceptions import AMQPConnectionError
-except ImportError:  # pragma: no cover - fallback for older pika layouts
+except ImportError:
     AMQPConnectionError = Exception
 
 EXCHANGE_NAME = "novalink.events"
+QUEUE_GATEWAY_RESPONSES = "gateway.responses"
+
 ROUTING_KEY_ORDER_CREATED = "pedido.creado"
-ROUTING_KEY_INVENTORY_CONFIRMED = "inventario.confirmado"
-ROUTING_KEY_USER_UPDATED = "usuario.actualizado"
+ROUTING_KEY_SKILLS_LIST = "skills.listar"
 ROUTING_KEY_USER_CREATE = "usuario.creado"
 ROUTING_KEY_USERS_LIST = "usuarios.listar"
 ROUTING_KEY_USER_SKILLS_LIST = "usuarios.skills.listar"
+ROUTING_KEY_NOTIFY_CREATE = "notificaciones.crear"
+
+ROUTING_KEY_GATEWAY_RESPONSE_SKILLS = "gateway.respuesta.skills"
+ROUTING_KEY_GATEWAY_RESPONSE_SKILLS_LIST = "gateway.respuesta.skills.list"
 ROUTING_KEY_GATEWAY_RESPONSE_USERS = "gateway.respuesta.users"
 ROUTING_KEY_GATEWAY_RESPONSE_USERS_LIST = "gateway.respuesta.users.list"
 ROUTING_KEY_GATEWAY_RESPONSE_USERS_SKILLS = "gateway.respuesta.users.skills"
-
-QUEUE_INVENTORY = "inventario.pedido.creado"
-QUEUE_USERS = "usuarios.inventario.confirmado"
-QUEUE_NOTIFICATIONS = "notificaciones.usuario.actualizado"
+ROUTING_KEY_GATEWAY_RESPONSE_NOTIFICATIONS = "gateway.respuesta.notifications"
+ROUTING_KEY_GATEWAY_RESPONSE_NOTIFICATIONS_LIST = "gateway.respuesta.notifications.list"
 
 MessageHandler = Callable[[dict[str, Any], str], None]
 
@@ -39,18 +40,12 @@ def build_connection_parameters() -> pika.ConnectionParameters:
     if broker_url:
         return pika.URLParameters(broker_url)
 
-    host = os.getenv("RABBITMQ_HOST", "localhost")
-    port = int(os.getenv("RABBITMQ_PORT", "5672"))
-    vhost = os.getenv("RABBITMQ_VHOST", "/")
-    user = os.getenv("RABBITMQ_USER", "guest")
-    # Log connection target to help debugging DNS/resolution issues
-    print(f"[rabbitmq] connecting to {host}:{port} vhost={vhost} user={user}")
     return pika.ConnectionParameters(
-        host=host,
-        port=port,
-        virtual_host=vhost,
+        host=os.getenv("RABBITMQ_HOST", "localhost"),
+        port=int(os.getenv("RABBITMQ_PORT", "5672")),
+        virtual_host=os.getenv("RABBITMQ_VHOST", "/"),
         credentials=pika.PlainCredentials(
-            user,
+            os.getenv("RABBITMQ_USER", "guest"),
             os.getenv("RABBITMQ_PASSWORD", "guest"),
         ),
     )
@@ -75,12 +70,10 @@ def declare_event_topology(channel: pika.adapters.blocking_connection.BlockingCh
 def declare_service_queue(
     channel: pika.adapters.blocking_connection.BlockingChannel,
     queue_name: str,
-    routing_keys: str | list[str],
+    routing_keys: list[str],
 ) -> None:
     declare_event_topology(channel)
     channel.queue_declare(queue=queue_name, durable=True)
-    if isinstance(routing_keys, str):
-        routing_keys = [routing_keys]
     for routing_key in routing_keys:
         channel.queue_bind(exchange=EXCHANGE_NAME, queue=queue_name, routing_key=routing_key)
 
@@ -108,7 +101,7 @@ def decode_json_message(body: bytes) -> dict[str, Any]:
 
 def consume_forever(
     queue_name: str,
-    routing_keys: str | list[str],
+    routing_keys: list[str],
     handler: MessageHandler,
 ) -> None:
     connection, channel = open_channel()
@@ -130,26 +123,5 @@ def consume_forever(
         channel.basic_consume(queue=queue_name, on_message_callback=on_message, auto_ack=False)
         print(f"[rabbitmq] waiting for {routing_keys} on queue {queue_name}")
         channel.start_consuming()
-    finally:
-        connection.close()
-
-
-def consume_once(
-    queue_name: str,
-    routing_keys: str | list[str],
-    handler: MessageHandler,
-) -> bool:
-    connection, channel = open_channel()
-    try:
-        declare_service_queue(channel, queue_name, routing_keys)
-        method, _properties, body = channel.basic_get(queue=queue_name, auto_ack=False)
-        if method is None:
-            return False
-
-        payload = decode_json_message(body)
-        print(f"[rabbitmq] received {routing_keys} on queue {queue_name}: {payload}")
-        handler(payload, method.routing_key)
-        channel.basic_ack(delivery_tag=method.delivery_tag)
-        return True
     finally:
         connection.close()
