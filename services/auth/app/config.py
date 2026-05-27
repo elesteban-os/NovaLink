@@ -23,7 +23,10 @@ class Settings:
 
     @property
     def DATABASE_URL(self) -> str:
-        """Build the PostgreSQL database connection URL from environment settings."""
+        """Build the database connection URL from environment settings or fallback."""
+        env_url = os.getenv("DATABASE_URL")
+        if env_url:
+            return env_url
         return (
             f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@"
             f"{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
