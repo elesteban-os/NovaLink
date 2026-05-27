@@ -30,6 +30,8 @@ from shared.rabbitmq_api import (
 	consume_once,
 	publish_event,
 )
+from shared.redis_api import is_event_processed, mark_event_processed
+
 
 
 def validate_stock(order: dict[str, Any]) -> dict[str, Any]:
@@ -51,10 +53,20 @@ def validate_stock(order: dict[str, Any]) -> dict[str, Any]:
 
 def handle_order_created(order: dict[str, Any]) -> None:
 	"""Handle `pedido.creado`, log it, and publish `inventario.confirmado`."""
+	
+	# Usamos el pedido_id como identificador de idempotencia
+	event_id = str(order.get("pedido_id", "unknown"))
+	
+	if is_event_processed(QUEUE_INVENTORY, event_id):
+		print(f"[inventario] IGNORADO: El evento {event_id} ya fue procesado anteriormente.")
+		return
 
 	print(f"[inventario] received {ROUTING_KEY_ORDER_CREATED}: {json.dumps(order, ensure_ascii=False)}")
 	confirmation = validate_stock(order)
 	publish_event(ROUTING_KEY_INVENTORY_CONFIRMED, confirmation)
+	
+	# Registramos el evento en caché para evitar procesarlo de nuevo en el futuro
+	mark_event_processed(QUEUE_INVENTORY, event_id)
 	print(f"[inventario] published {ROUTING_KEY_INVENTORY_CONFIRMED}: {confirmation}")
 
 

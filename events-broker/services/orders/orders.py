@@ -22,6 +22,7 @@ if str(ROOT_DIR) not in sys.path:
 	sys.path.insert(0, str(ROOT_DIR))
 
 from shared.rabbitmq_api import ROUTING_KEY_ORDER_CREATED, publish_event
+from shared.redis_api import is_event_processed, mark_event_processed
 
 
 def build_sample_order() -> dict[str, Any]:
@@ -44,7 +45,18 @@ def publish_sample_order() -> None:
 	"""Publish the hardcoded order to the `pedido.creado` event."""
 
 	payload = build_sample_order()
+	
+	# Usamos un identificador único para el intento de pedido
+	idempotency_key = f"{payload['cliente']}_{payload['pedido_id']}"
+	
+	if is_event_processed("orders_publisher", idempotency_key):
+		print(f"[orders] COMPRA IGNORADA: La transacción para el pedido {payload['pedido_id']} ya fue enviada anteriormente para evitar cobros dobles.")
+		return
+
 	publish_event(ROUTING_KEY_ORDER_CREATED, payload)
+	
+	# Registrar el pedido como creado y enviado
+	mark_event_processed("orders_publisher", idempotency_key)
 	print(f"[orders] published {ROUTING_KEY_ORDER_CREATED}: {payload}")
 
 
