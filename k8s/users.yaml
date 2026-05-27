@@ -68,7 +68,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: users-api:v2.0
+        image: users-api:v2.1
         imagePullPolicy: IfNotPresent # Como usarás Docker Desktop, esto toma la imagen construida localmente
         env:
         - name: DB_USER
@@ -93,6 +93,10 @@ spec:
           value: "guest"
         - name: RABBITMQ_VHOST
           value: "/"
+        - name: REDIS_HOST
+          value: "novalink-redis"
+        - name: REDIS_PORT
+          value: "6379"
         ports:
         - containerPort: 8000
 ---
@@ -123,7 +127,7 @@ spec:
     spec:
       containers:
       - name: worker
-        image: users-api:v2.0
+        image: users-api:v2.1
         imagePullPolicy: IfNotPresent
         command: ["python", "-m", "app.infrastructure.event_worker", "run"]
         env:
@@ -149,3 +153,10 @@ spec:
           value: "guest"
         - name: RABBITMQ_VHOST
           value: "/"
+        - name: REDIS_HOST
+          value: "novalink-redis"
+        - name: REDIS_PORT
+          value: "6379"
+
+
+

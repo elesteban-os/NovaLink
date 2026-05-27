@@ -68,7 +68,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: notifications-api:v2.0
+        image: notifications-api:v2.1
         imagePullPolicy: IfNotPresent
         command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8004"]
         env:
@@ -98,6 +98,10 @@ spec:
           value: "guest"
         - name: RABBITMQ_VHOST
           value: "/"
+        - name: REDIS_HOST
+          value: "novalink-redis"
+        - name: REDIS_PORT
+          value: "6379"
         ports:
         - containerPort: 8004
 ---
@@ -128,7 +132,7 @@ spec:
     spec:
       containers:
       - name: worker
-        image: notifications-api:v2.0
+        image: notifications-api:v2.1
         imagePullPolicy: IfNotPresent
         command: ["python", "-m", "app.infrastructure.event_worker", "run"]
         env:
@@ -154,3 +158,11 @@ spec:
           value: "guest"
         - name: RABBITMQ_VHOST
           value: "/"
+        - name: REDIS_HOST
+          value: "novalink-redis"
+        - name: REDIS_PORT
+          value: "6379"
+
+
+
+

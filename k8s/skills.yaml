@@ -68,7 +68,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: skills-api:v2.0
+        image: skills-api:v2.1
         imagePullPolicy: IfNotPresent
         command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
         env:
@@ -94,6 +94,10 @@ spec:
           value: "guest"
         - name: RABBITMQ_VHOST
           value: "/"
+        - name: REDIS_HOST
+          value: "novalink-redis"
+        - name: REDIS_PORT
+          value: "6379"
         ports:
         - containerPort: 8000
 ---
@@ -124,7 +128,7 @@ spec:
     spec:
       containers:
       - name: worker
-        image: skills-api:v2.0
+        image: skills-api:v2.1
         imagePullPolicy: IfNotPresent
         command: ["python", "-m", "app.infrastructure.event_worker", "run"]
         env:
@@ -150,3 +154,10 @@ spec:
           value: "guest"
         - name: RABBITMQ_VHOST
           value: "/"
+        - name: REDIS_HOST
+          value: "novalink-redis"
+        - name: REDIS_PORT
+          value: "6379"
+
+
+
