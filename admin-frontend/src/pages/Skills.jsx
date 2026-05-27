@@ -63,38 +63,8 @@ function Skills({ role, userId }) {
       });
       
       if (res.ok) {
-        const orderData = await res.json();
-        const skillName = selectedSkill.skill_name || selectedSkill.name;
-        // Ahora sí vincularemos esto a la base de datos de Usuarios para reflejarlo en su perfil
-        const userRes = await fetch(`${USERS_API_URL}/users/${userId}/skills/${encodeURIComponent(skillName)}?quantity=${purchaseQuantity}`, {
-          method: 'POST',
-        });
-        
-        // Actualizamos el stock
-        await fetch(`${SKILLS_API_URL}/skills/${selectedSkill.skill_id || selectedSkill.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ stock: selectedSkill.stock - purchaseQuantity })
-        });
-
-        // Enviamos notificación
-        await fetch(`${NOTIFICATIONS_API_URL}/notifications`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: userId,
-            order_id: orderData.id || 1,
-            title: "Nueva Habilidad Adquirida",
-            description: `Has adquirido ${purchaseQuantity} x ${skillName} exitosamente.`
-          })
-        });
-
-        if (userRes.ok) {
-          alert(`¡Pedido creado (${purchaseQuantity}x), habilidad adquirida y notificación enviada exitosamente!`);
-          fetchSkills();
-        } else {
-          alert("Pedido creado, pero error vinculando la habilidad a tu perfil.");
-        }
+        alert(`¡Pedido creado (${purchaseQuantity}x) exitosamente! El evento será procesado asíncronamente por el broker.`);
+        fetchSkills();
         setShowModal(false);
         setPurchaseQuantity(1);
       } else {
