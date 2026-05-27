@@ -23,9 +23,9 @@ kind: Service
 metadata:
   name: admin-frontend-service
 spec:
-  type: LoadBalancer # Docker Desktop mapea esto automáticamente a tu localhost
+  type: LoadBalancer 
   selector:
     app: admin-frontend
   ports:
-  - port: 8080 # Entrarás al navegador por http://localhost:8080
+  - port: 8080 # http://localhost:8080
     targetPort: 80
