@@ -14,6 +14,11 @@ from app.infrastructure.rabbitmq import (
     consume_once,
 )
 from app.services.notification_service import create_notification as create_notification_service
+from app.infrastructure.redis import (
+    acquire_processing_lock,
+    is_event_processed,
+    mark_event_processed,
+)
 
 
 def build_notification_payload(user_event: dict[str, object]) -> NotificationCreate:
@@ -44,11 +49,25 @@ def handle_user_updated(user_event: dict[str, object]) -> None:
         f"{json.dumps(user_event, ensure_ascii=False)}"
     )
 
+    event_id = user_event.get("pedido_id")
+    if not event_id:
+        print("[notificaciones] missing pedido_id in message, skipping idempotency checks")
+        return
+
+    if is_event_processed(event_id):
+        print(f"[notificaciones] already processed {event_id}, skipping")
+        return
+
+    if not acquire_processing_lock(event_id, ttl=30):
+        print(f"[notificaciones] another worker is processing {event_id}, skipping")
+        return
+
     payload = build_notification_payload(user_event)
     with SessionLocal() as db:
         try:
             notification = create_notification_service(db, payload)
             print(f"[notificaciones] created notification id={notification.id}")
+            mark_event_processed(event_id)
         except Exception as exc:
             print(f"[notificaciones] error creating notification: {exc}")
 

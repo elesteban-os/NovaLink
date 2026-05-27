@@ -17,6 +17,11 @@ from app.infrastructure.rabbitmq import (
     publish_event,
 )
 from app.services.user_service import user_service
+from app.infrastructure.redis import (
+    acquire_processing_lock,
+    is_event_processed,
+    mark_event_processed,
+)
 
 
 def build_user_updated_event(inventory_event: dict[str, Any], assigned: bool, reason: str | None = None) -> dict[str, Any]:
@@ -37,6 +42,18 @@ def handle_inventory_confirmed(inventory_event: dict[str, Any]) -> None:
         f"[usuarios] received {ROUTING_KEY_INVENTORY_CONFIRMED}: "
         f"{json.dumps(inventory_event, ensure_ascii=False)}"
     )
+    event_id = inventory_event.get("pedido_id")
+    if not event_id:
+        print("[usuarios] missing pedido_id in message, skipping idempotency checks")
+        return
+
+    if is_event_processed(event_id):
+        print(f"[usuarios] already processed {event_id}, skipping")
+        return
+
+    if not acquire_processing_lock(event_id, ttl=30):
+        print(f"[usuarios] another worker is processing {event_id}, skipping")
+        return
 
     assigned = False
     reason: str | None = None
@@ -54,6 +71,7 @@ def handle_inventory_confirmed(inventory_event: dict[str, Any]) -> None:
     user_update = build_user_updated_event(inventory_event, assigned, reason)
     publish_event(ROUTING_KEY_USER_UPDATED, user_update)
     print(f"[usuarios] published {ROUTING_KEY_USER_UPDATED}: {user_update}")
+    mark_event_processed(event_id)
 
 
 def run_users_service(mode: str = "run") -> None:
