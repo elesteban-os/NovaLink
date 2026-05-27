@@ -30,6 +30,42 @@ SERVER_HOST=0.0.0.0
 SERVER_PORT=8006
 ```
 
+## Pruebas
+
+1. Navega al directorio del servicio:
+
+```powershell
+cd services/skills
+```
+
+2. Crea y activa un entorno virtual con Python 3.11:
+
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+3. Instala dependencias:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install --upgrade pip setuptools wheel
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt pytest
+```
+
+4. Levanta la base de datos PostgreSQL necesaria para los tests:
+
+```powershell
+docker compose up -d
+```
+
+5. Ejecuta los tests:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests/ -q
+```
+
+> Si `pytest` no se reconoce en la terminal, usa `python -m pytest`.
+
 ## Estructura relevante
 
 - `app/main.py` — Entrypoint FastAPI

@@ -19,7 +19,7 @@ def create_skill(db: Session, obj_in: SkillCreate) -> Skill:
     Returns:
         Objeto Skill creado
     """
-    db_obj = Skill(**obj_in.dict())
+    db_obj = Skill(**obj_in.model_dump())
     db.add(db_obj)
     db.commit()
     db.refresh(db_obj)
