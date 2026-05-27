@@ -19,12 +19,12 @@ class Settings(BaseSettings):
     DB_PORT: int = 5432
     DB_NAME: str
     DB_ECHO: bool = False
-    
+
     # ===== API =====
     API_TITLE: str = "Skills Microservice"
     API_DESCRIPTION: str = "Microservicio de gestión de habilidades"
     API_VERSION: str = "1.0.0"
-    
+
     # ===== SERVER =====
     SERVER_HOST: str = "0.0.0.0"
     SERVER_PORT: int = 8000

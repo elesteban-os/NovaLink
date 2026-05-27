@@ -4,7 +4,9 @@ from app.persistence.schemas import SkillCreate, SkillUpdate
 
 
 def test_create_skill_persists(db_session):
-    payload = SkillCreate(skill_name="test_curiosidad_unique", difficulty_level=4, stock=120)
+    payload = SkillCreate(
+        skill_name="test_curiosidad_unique", difficulty_level=4, stock=120
+    )
 
     saved = crud.create_skill(db_session, payload)
 
@@ -14,13 +16,17 @@ def test_create_skill_persists(db_session):
     assert saved.stock == 120
     assert saved.is_active is True
 
-    fetched = db_session.query(Skill).filter_by(skill_name="test_curiosidad_unique").one()
+    fetched = (
+        db_session.query(Skill).filter_by(skill_name="test_curiosidad_unique").one()
+    )
     assert fetched.skill_id == saved.skill_id
     assert fetched.stock == 120
 
 
 def test_update_skill_persists_changes(db_session):
-    payload = SkillCreate(skill_name="test_adaptabilidad_unique", difficulty_level=5, stock=80)
+    payload = SkillCreate(
+        skill_name="test_adaptabilidad_unique", difficulty_level=5, stock=80
+    )
     saved = crud.create_skill(db_session, payload)
 
     update_payload = SkillUpdate(difficulty_level=6, stock=90)
@@ -32,7 +38,9 @@ def test_update_skill_persists_changes(db_session):
 
 
 def test_delete_skill_removes_entity(db_session):
-    payload = SkillCreate(skill_name="test_paciencia_unique", difficulty_level=2, stock=50)
+    payload = SkillCreate(
+        skill_name="test_paciencia_unique", difficulty_level=2, stock=50
+    )
     saved = crud.create_skill(db_session, payload)
 
     deleted = crud.delete_skill(db_session, saved.skill_id)
@@ -43,8 +51,12 @@ def test_delete_skill_removes_entity(db_session):
 
 
 def test_get_skills_filters_by_active(db_session):
-    payload_a = SkillCreate(skill_name="test_humor_unique", difficulty_level=2, stock=40)
-    payload_b = SkillCreate(skill_name="test_silencio_unique", difficulty_level=1, stock=10)
+    payload_a = SkillCreate(
+        skill_name="test_humor_unique", difficulty_level=2, stock=40
+    )
+    payload_b = SkillCreate(
+        skill_name="test_silencio_unique", difficulty_level=1, stock=10
+    )
     first = crud.create_skill(db_session, payload_a)
     second = crud.create_skill(db_session, payload_b)
 
