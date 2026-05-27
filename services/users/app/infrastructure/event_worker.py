@@ -24,7 +24,9 @@ from app.infrastructure.redis import (
 )
 
 
-def build_user_updated_event(inventory_event: dict[str, Any], assigned: bool, reason: str | None = None) -> dict[str, Any]:
+def build_user_updated_event(
+    inventory_event: dict[str, Any], assigned: bool, reason: str | None = None
+) -> dict[str, Any]:
     return {
         "pedido_id": inventory_event["pedido_id"],
         "user_id": inventory_event["user_id"],
@@ -60,13 +62,17 @@ def handle_inventory_confirmed(inventory_event: dict[str, Any]) -> None:
     if inventory_event.get("stock_validado"):
         with SessionLocal() as db:
             try:
-                skill_data = UserSkillCreate(skill_name=inventory_event["skill_name"], points=1)
+                skill_data = UserSkillCreate(
+                    skill_name=inventory_event["skill_name"], points=1
+                )
                 user_service.add_user_skill(db, inventory_event["user_id"], skill_data)
                 assigned = True
             except ValueError as exc:
                 reason = str(exc)
     else:
-        reason = inventory_event.get("motivo") or "Stock insuficiente o skill no disponible"
+        reason = (
+            inventory_event.get("motivo") or "Stock insuficiente o skill no disponible"
+        )
 
     user_update = build_user_updated_event(inventory_event, assigned, reason)
     publish_event(ROUTING_KEY_USER_UPDATED, user_update)
@@ -76,10 +82,14 @@ def handle_inventory_confirmed(inventory_event: dict[str, Any]) -> None:
 
 def run_users_service(mode: str = "run") -> None:
     if mode == "run":
-        consume_forever(QUEUE_USERS, ROUTING_KEY_INVENTORY_CONFIRMED, handle_inventory_confirmed)
+        consume_forever(
+            QUEUE_USERS, ROUTING_KEY_INVENTORY_CONFIRMED, handle_inventory_confirmed
+        )
         return
 
-    processed = consume_once(QUEUE_USERS, ROUTING_KEY_INVENTORY_CONFIRMED, handle_inventory_confirmed)
+    processed = consume_once(
+        QUEUE_USERS, ROUTING_KEY_INVENTORY_CONFIRMED, handle_inventory_confirmed
+    )
     if not processed:
         print(f"[usuarios] no messages available in {QUEUE_USERS}")
 

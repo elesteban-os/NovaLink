@@ -16,6 +16,7 @@ from app.logger import logger
 
 # ===== USER CRUD =====
 
+
 def create_user(db: Session, user_data: UserCreate) -> User:
     """Create a new user record in the database.
 
@@ -31,7 +32,7 @@ def create_user(db: Session, user_data: UserCreate) -> User:
         email=user_data.email,
         first_name=user_data.first_name,
         last_name=user_data.last_name,
-        hashed_password=hashed_password
+        hashed_password=hashed_password,
     )
     db.add(db_user)
     db.commit()
@@ -51,10 +52,7 @@ def get_user_by_email(db: Session, email: str) -> Optional[User]:
 
 
 def get_users(
-    db: Session,
-    skip: int = 0,
-    limit: int = 100,
-    is_active: Optional[bool] = True
+    db: Session, skip: int = 0, limit: int = 100, is_active: Optional[bool] = True
 ) -> List[User]:
     """List users with pagination and optional active-state filter.
 
@@ -68,10 +66,10 @@ def get_users(
         List of User ORM instances
     """
     query = db.query(User)
-    
+
     if is_active is not None:
         query = query.filter(User.is_active == is_active)
-    
+
     return query.offset(skip).limit(limit).all()
 
 
@@ -87,14 +85,14 @@ def update_user(db: Session, db_user: User, user_data: UserUpdate) -> User:
         The updated User ORM instance
     """
     update_data = user_data.model_dump(exclude_unset=True)
-    
+
     # Hash password if provided
     if "password" in update_data:
         update_data["hashed_password"] = get_password_hash(update_data.pop("password"))
-        
+
     for key, value in update_data.items():
         setattr(db_user, key, value)
-        
+
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -113,11 +111,11 @@ def delete_user(db: Session, user_id: int) -> bool:
         True if deactivated, False if user not found
     """
     db_user = get_user(db, user_id)
-    
+
     if not db_user:
         logger.warning(f"User not found: {user_id}")
         return False
-    
+
     db_user.is_active = False
     db.add(db_user)
     db.commit()
@@ -127,23 +125,23 @@ def delete_user(db: Session, user_id: int) -> bool:
 
 # ===== USER SKILL CRUD =====
 
+
 def get_user_skills(db: Session, user_id: int) -> List[UserSkill]:
     """Return all skills associated with a given user."""
     return db.query(UserSkill).filter(UserSkill.user_id == user_id).all()
 
 
-def add_user_skill(
-    db: Session,
-    user_id: int,
-    skill_data: UserSkillCreate
-) -> UserSkill:
+def add_user_skill(db: Session, user_id: int, skill_data: UserSkillCreate) -> UserSkill:
     """Add a skill to a user or increment points if the skill exists."""
     # Verificar si el skill ya existe
-    existing_skill = db.query(UserSkill).filter(
-        UserSkill.user_id == user_id,
-        UserSkill.skill_name == skill_data.skill_name
-    ).first()
-    
+    existing_skill = (
+        db.query(UserSkill)
+        .filter(
+            UserSkill.user_id == user_id, UserSkill.skill_name == skill_data.skill_name
+        )
+        .first()
+    )
+
     if existing_skill:
         logger.info(f"Skill already exists for user {user_id}, incrementing points")
         existing_skill.points += skill_data.points
@@ -151,12 +149,10 @@ def add_user_skill(
         db.commit()
         db.refresh(existing_skill)
         return existing_skill
-        
+
     # Create new skill
     db_skill = UserSkill(
-        user_id=user_id,
-        skill_name=skill_data.skill_name,
-        points=skill_data.points
+        user_id=user_id, skill_name=skill_data.skill_name, points=skill_data.points
     )
     db.add(db_skill)
     db.commit()
@@ -176,15 +172,16 @@ def remove_user_skill(db: Session, user_id: int, skill_name: str) -> bool:
     Returns:
         True if removed, False if not found
     """
-    db_skill = db.query(UserSkill).filter(
-        UserSkill.user_id == user_id,
-        UserSkill.skill_name == skill_name
-    ).first()
-    
+    db_skill = (
+        db.query(UserSkill)
+        .filter(UserSkill.user_id == user_id, UserSkill.skill_name == skill_name)
+        .first()
+    )
+
     if not db_skill:
         logger.warning(f"Skill not found for user {user_id}: {skill_name}")
         return False
-    
+
     db.delete(db_skill)
     db.commit()
     logger.info(f"Skill removed from user {user_id}: {skill_name}")

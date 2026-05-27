@@ -19,7 +19,9 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def create_access_token(data: dict, expires_delta: datetime.timedelta | None = None) -> str:
+def create_access_token(
+    data: dict, expires_delta: datetime.timedelta | None = None
+) -> str:
     """Generate a signed JWT token with an expiration timestamp."""
     to_encode = data.copy()
     if expires_delta:
@@ -27,7 +29,9 @@ def create_access_token(data: dict, expires_delta: datetime.timedelta | None = N
     else:
         expire = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+    encoded_jwt = jwt.encode(
+        to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM
+    )
     return encoded_jwt
 
 

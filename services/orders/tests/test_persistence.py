@@ -1,4 +1,3 @@
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -21,7 +20,9 @@ def test_create_order_crud(db_session):
 
 
 def test_create_order_persistence_in_memory():
-    log_info("[TEST] Ejecutando: test_create_order_persistence_in_memory -> persistencia en memoria")
+    log_info(
+        "[TEST] Ejecutando: test_create_order_persistence_in_memory -> persistencia en memoria"
+    )
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(bind=engine)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

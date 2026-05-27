@@ -31,9 +31,15 @@ def build_test_list(unit: bool, persistence: bool) -> list:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run orders service tests")
     parser.add_argument("--unit", action="store_true", help="Run unit tests only")
-    parser.add_argument("--persistence", action="store_true", help="Run persistence tests only")
-    parser.add_argument("--coverage", action="store_true", help="Run with coverage report")
-    parser.add_argument("--verbose", "-v", action="store_true", help="Verbose pytest output")
+    parser.add_argument(
+        "--persistence", action="store_true", help="Run persistence tests only"
+    )
+    parser.add_argument(
+        "--coverage", action="store_true", help="Run with coverage report"
+    )
+    parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Verbose pytest output"
+    )
 
     args = parser.parse_args(argv)
 

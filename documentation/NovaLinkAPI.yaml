@@ -34,7 +34,7 @@ paths:
                 message: "User created successfully"
         '400':
           description: Datos inválidos o correo electrónico ya registrado.
-    
+
     get:
       summary: Obtener información de todos los usuarios
       description: Retorna todos los atributos de todos los usuarios existentes

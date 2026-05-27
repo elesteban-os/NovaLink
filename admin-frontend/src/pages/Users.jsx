@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Users.css';
 
-const API_URL = 'http://localhost:8002'; 
+const API_URL = 'http://localhost:8002';
 
 function Users() {
   const [users, setUsers] = useState([]);
@@ -28,7 +28,7 @@ function Users() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       if (editingId) {
         // PUT /users/{user_id}
@@ -48,10 +48,10 @@ function Users() {
         });
       } else {
         // POST /users - Como es email decidimos el role internamente
-        const finalEmail = formData.email.includes('@') 
-            ? formData.email 
+        const finalEmail = formData.email.includes('@')
+            ? formData.email
             : `${formData.email}@${formData.role}.com`;
-            
+
         await fetch(`${API_URL}/users`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -75,13 +75,13 @@ function Users() {
   const handleEdit = (user) => {
     let currentRole = 'user';
     if (user.email.includes('@admin')) currentRole = 'admin';
-    
-    setFormData({ 
-      first_name: user.first_name, 
-      last_name: user.last_name, 
-      email: user.email, 
-      role: currentRole, 
-      password: '' 
+
+    setFormData({
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      role: currentRole,
+      password: ''
     });
     setEditingId(user.id);
     setShowForm(true);

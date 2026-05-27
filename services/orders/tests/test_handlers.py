@@ -28,18 +28,28 @@ def test_create_order_endpoint(client, auth_token):
 
 
 def test_create_order_endpoint_missing_authorization(client):
-    logger.info("[TEST] Ejecutando: test_create_order_endpoint_missing_authorization -> sin Authorization header")
+    logger.info(
+        "[TEST] Ejecutando: test_create_order_endpoint_missing_authorization -> sin Authorization header"
+    )
     response = client.post(
         "/orders",
         json={"skill_name": "FastAPI", "quantity": 1},
     )
 
-    log_assert_equal(401, response.status_code, "status_code when missing authorization")
-    log_assert_equal("Missing or invalid token", response.json()["detail"], "error detail when missing authorization")
+    log_assert_equal(
+        401, response.status_code, "status_code when missing authorization"
+    )
+    log_assert_equal(
+        "Missing or invalid token",
+        response.json()["detail"],
+        "error detail when missing authorization",
+    )
 
 
 def test_create_order_endpoint_invalid_token(client):
-    logger.info("[TEST] Ejecutando: test_create_order_endpoint_invalid_token -> token inválido")
+    logger.info(
+        "[TEST] Ejecutando: test_create_order_endpoint_invalid_token -> token inválido"
+    )
     response = client.post(
         "/orders",
         json={"skill_name": "FastAPI", "quantity": 1},
@@ -47,11 +57,15 @@ def test_create_order_endpoint_invalid_token(client):
     )
 
     log_assert_equal(401, response.status_code, "status_code when token invalid")
-    log_assert_equal("Invalid token", response.json()["detail"], "error detail when token invalid")
+    log_assert_equal(
+        "Invalid token", response.json()["detail"], "error detail when token invalid"
+    )
 
 
 def test_create_order_endpoint_blank_skill_name_returns_422(client, auth_token):
-    logger.info("[TEST] Ejecutando: test_create_order_endpoint_blank_skill_name_returns_422 -> skill_name en blanco")
+    logger.info(
+        "[TEST] Ejecutando: test_create_order_endpoint_blank_skill_name_returns_422 -> skill_name en blanco"
+    )
     response = client.post(
         "/orders",
         json={"skill_name": "   ", "quantity": 1},
@@ -64,7 +78,9 @@ def test_create_order_endpoint_blank_skill_name_returns_422(client, auth_token):
 
 
 def test_create_order_endpoint_negative_quantity_returns_422(client, auth_token):
-    logger.info("[TEST] Ejecutando: test_create_order_endpoint_negative_quantity_returns_422 -> quantity <= 0")
+    logger.info(
+        "[TEST] Ejecutando: test_create_order_endpoint_negative_quantity_returns_422 -> quantity <= 0"
+    )
     response = client.post(
         "/orders",
         json={"skill_name": "FastAPI", "quantity": 0},

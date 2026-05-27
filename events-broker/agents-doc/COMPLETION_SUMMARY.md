@@ -1,7 +1,7 @@
 # ✅ Documentación Completada - Resumen Ejecutivo
 
-**Fecha:** 24 de mayo de 2026  
-**Proyecto:** NovaLink - Event Broker Integration Guide  
+**Fecha:** 24 de mayo de 2026
+**Proyecto:** NovaLink - Event Broker Integration Guide
 **Ubicación:** `events-broker/agents-doc/`
 
 ---
@@ -391,4 +391,3 @@ Si necesitas:
 ---
 
 **Documentación Completada: 24 de mayo de 2026**
-

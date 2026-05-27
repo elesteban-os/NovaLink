@@ -13,11 +13,7 @@ engine = create_engine(
 )
 
 # Sessions
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # ORM base
 Base = declarative_base()
@@ -26,7 +22,7 @@ Base = declarative_base()
 def get_db() -> Session:
     """
     Dependency to obtain a database session in endpoints.
-    
+
     Usage in handlers:
         @app.get("/skills")
         def get_skills(db: Session = Depends(get_db)):

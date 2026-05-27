@@ -26,7 +26,9 @@ from app.infrastructure.redis import (
 service = SkillService()
 
 
-def build_inventory_confirmation(order: dict[str, Any], success: bool, reason: str | None = None) -> dict[str, Any]:
+def build_inventory_confirmation(
+    order: dict[str, Any], success: bool, reason: str | None = None
+) -> dict[str, Any]:
     return {
         "pedido_id": order["pedido_id"],
         "user_id": order["user_id"],
@@ -39,7 +41,9 @@ def build_inventory_confirmation(order: dict[str, Any], success: bool, reason: s
 
 
 def handle_order_created(order: dict[str, Any]) -> None:
-    print(f"[inventario] received {ROUTING_KEY_ORDER_CREATED}: {json.dumps(order, ensure_ascii=False)}")
+    print(
+        f"[inventario] received {ROUTING_KEY_ORDER_CREATED}: {json.dumps(order, ensure_ascii=False)}"
+    )
 
     # Use pedido_id as the idempotency/event id
     event_id = order.get("pedido_id")
@@ -76,10 +80,14 @@ def handle_order_created(order: dict[str, Any]) -> None:
 
 def run_inventory_service(mode: str = "run") -> None:
     if mode == "run":
-        consume_forever(QUEUE_INVENTORY, ROUTING_KEY_ORDER_CREATED, handle_order_created)
+        consume_forever(
+            QUEUE_INVENTORY, ROUTING_KEY_ORDER_CREATED, handle_order_created
+        )
         return
 
-    processed = consume_once(QUEUE_INVENTORY, ROUTING_KEY_ORDER_CREATED, handle_order_created)
+    processed = consume_once(
+        QUEUE_INVENTORY, ROUTING_KEY_ORDER_CREATED, handle_order_created
+    )
     if not processed:
         print(f"[inventario] no messages available in {QUEUE_INVENTORY}")
 

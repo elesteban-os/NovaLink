@@ -74,10 +74,14 @@ def handle_user_updated(user_event: dict[str, object]) -> None:
 
 def run_notifications_service(mode: str = "run") -> None:
     if mode == "run":
-        consume_forever(QUEUE_NOTIFICATIONS, ROUTING_KEY_USER_UPDATED, handle_user_updated)
+        consume_forever(
+            QUEUE_NOTIFICATIONS, ROUTING_KEY_USER_UPDATED, handle_user_updated
+        )
         return
 
-    processed = consume_once(QUEUE_NOTIFICATIONS, ROUTING_KEY_USER_UPDATED, handle_user_updated)
+    processed = consume_once(
+        QUEUE_NOTIFICATIONS, ROUTING_KEY_USER_UPDATED, handle_user_updated
+    )
     if not processed:
         print(f"[notificaciones] no messages available in {QUEUE_NOTIFICATIONS}")
 

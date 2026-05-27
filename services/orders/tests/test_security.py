@@ -10,13 +10,18 @@ def build_request(headers: dict[str, str]) -> Request:
         "type": "http",
         "method": "GET",
         "path": "/",
-        "headers": [(name.encode("utf-8"), value.encode("utf-8")) for name, value in headers.items()],
+        "headers": [
+            (name.encode("utf-8"), value.encode("utf-8"))
+            for name, value in headers.items()
+        ],
     }
     return Request(scope)
 
 
 def test_verify_token_returns_user_id():
-    token = jwt.encode({"user_id": 42}, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    token = jwt.encode(
+        {"user_id": 42}, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
     request = build_request({"authorization": f"Bearer {token}"})
 
     user_id = verify_token(request)
