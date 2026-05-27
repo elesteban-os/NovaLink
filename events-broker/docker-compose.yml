@@ -8,10 +8,39 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
-    networks:
-      - novalink_network
+  
+  redis:
+    image: redis:7-alpine
+    container_name: novalink-redis
+    ports:
+      - "6379:6379"
 
-networks:
-  novalink_network:
-    name: novalink_network
-    driver: bridge
+  skills-worker:
+    build: 
+      context: .
+    container_name: novalink-events-skills
+    command: python services/skills/skills.py run
+    restart: always
+    depends_on:
+      - rabbitmq
+      - redis
+
+  users-worker:
+    build: 
+      context: .
+    container_name: novalink-events-users
+    command: python services/users/users.py run
+    restart: always
+    depends_on:
+      - rabbitmq
+      - redis
+
+  notifications-worker:
+    build: 
+      context: .
+    container_name: novalink-events-notifications
+    command: python services/notifications/notifications.py run
+    restart: always
+    depends_on:
+      - rabbitmq
+      - redis

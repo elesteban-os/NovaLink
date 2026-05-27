@@ -29,6 +29,8 @@ from shared.rabbitmq_api import (
 	consume_forever,
 	consume_once,
 )
+from shared.redis_api import is_event_processed, mark_event_processed
+
 
 
 def log_confirmation(user_update: dict[str, Any]) -> None:
@@ -38,11 +40,19 @@ def log_confirmation(user_update: dict[str, Any]) -> None:
 	stdout so the flow can be verified easily.
 	"""
 
+	event_id = str(user_update.get("pedido_id", "unknown"))
+	
+	if is_event_processed(QUEUE_NOTIFICATIONS, event_id):
+		print(f"[notificaciones] IGNORADO: El evento {event_id} ya fue procesado anteriormente.")
+		return
+
 	print(f"[notificaciones] received {ROUTING_KEY_USER_UPDATED}: {json.dumps(user_update, ensure_ascii=False)}")
 	print(
 		"[notificaciones] confirmation log: "
 		f"pedido {user_update['pedido_id']} actualizado con {user_update['habilidad_asignada']}"
 	)
+	
+	mark_event_processed(QUEUE_NOTIFICATIONS, event_id)
 
 
 def run_notifications_service(mode: str = "run") -> None:
