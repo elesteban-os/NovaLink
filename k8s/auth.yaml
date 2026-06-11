@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: auth
-        image: auth-service:v2.0
+        image: auth-service:v2.1
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
@@ -37,11 +37,14 @@ apiVersion: v1
 kind: Service
 metadata:
   name: auth-service
+  labels:
+    monitor: prometheus
 spec:
   type: LoadBalancer
   selector:
     app: auth
   ports:
-    - protocol: TCP
+    - name: http-metrics
+      protocol: TCP
       port: 8006
       targetPort: 8000

@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: novalink-apis-monitor
+  namespace: default
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      monitor: prometheus
+  
+  endpoints:
+  - port: http-metrics
+    path: /metrics
+    interval: 15s

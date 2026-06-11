@@ -11,6 +11,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from .database import engine, Base
 from .logger import logger
@@ -42,5 +43,7 @@ app.add_middleware(
 )
 
 app.include_router(orders_router)
+
+Instrumentator().instrument(app).expose(app)
 
 # Database tables are created at startup via the lifespan context manager.

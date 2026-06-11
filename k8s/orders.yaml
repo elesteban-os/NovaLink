@@ -68,7 +68,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: orders-api:v2.1
+        image: orders-api:v2.2
         imagePullPolicy: IfNotPresent
         command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8005"]
         env:
@@ -101,10 +101,13 @@ apiVersion: v1
 kind: Service
 metadata:
   name: orders-api
+  labels:
+    monitor: prometheus
 spec:
   type: LoadBalancer
   selector:
     app: orders-api
   ports:
-  - port: 8005
+  - name: http-metrics
+    port: 8005
     targetPort: 8005
